@@ -121,13 +121,12 @@ public class MatchCards {
         startShowTimer = new Timer(3000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                hideCards(); // 모든 카드 뒤집기
+                hideCards();
             }
         });
         startShowTimer.setRepeats(false);
         startShowTimer.start();
 
-        // 매칭 실패 시 선택한 카드를 1초 동안 보여준 후 뒤집는 타이머
         hideCardTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -139,7 +138,7 @@ public class MatchCards {
         startGameTimer();
     }
 
-    private void startGameTimer() {
+    void startGameTimer() {
         gameTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -155,11 +154,11 @@ public class MatchCards {
         gameTimer.start();
     }
 
-    private void updateScore() {
+    void updateScore() {
         scoreLabel.setText("Score: " + scoreManager.getFinalScore());
     }
 
-    private void endGame() {
+    void endGame() {
         gameTimer.stop();
         hideCardTimer.stop();
         scoreManager.addTimeBonus(remainingTime);

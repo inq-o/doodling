@@ -1,11 +1,11 @@
 package match;
 
 public class ScoreManager {
-    private int currentScore;
-    private int timeBonus;
-    private final int matchPoints = 20;
-    private final int missPenalty = 5;
-    private int matchSuccessCount;      // 매칭 성공 횟수
+    int currentScore;
+    int timeBonus;
+    final int matchPoints = 20;
+    final int missPenalty = 5;
+    int matchSuccessCount;
 
     public ScoreManager() {
         this.currentScore = 0;
@@ -32,7 +32,6 @@ public class ScoreManager {
         return this.currentScore;
     }
 
-    // 매칭 성공 횟수 반환 메서드
     public int getMatchSuccessCount() {
         return this.matchSuccessCount;
     }
