@@ -11,8 +11,8 @@ import match.MatchCards;
 import match.ScoreManager;
 
 public class CardMatching extends JFrame {
-    private CardLayout cardLayout; // 겹겹이 쌓음
-    private JPanel mainPanel; // 메인 화면
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
     private ArrayList<PlayerScore> game1Scores = new ArrayList<>();
     private MatchCards matchCards;
 
@@ -22,43 +22,38 @@ public class CardMatching extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         cardLayout = new CardLayout();
-        mainPanel = new JPanel(cardLayout); // 메인화면에 또 다른 화면 나오게 끔
+        mainPanel = new JPanel(cardLayout);
 
-        // 배경 이미지 설정
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/card.jpg")); // 이미지 파일 경로 설정
         ImagePanel menuPanel = new ImagePanel(icon.getImage());
 
-        // 버튼 패널 설정
-        menuPanel.setLayout(new GridBagLayout()); // 옆으로
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0)); // 일자
-        buttonPanel.setOpaque(false); // 버튼 패널의 배경을 투명하게 설정
+        menuPanel.setLayout(new GridBagLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setOpaque(false);
 
         JButton gameButton = new JButton("게임 시작");
         JButton rankButton = new JButton("등수 확인");
 
-        // 버튼 크기 설정
-        gameButton.setPreferredSize(new Dimension(120, 50)); // 버튼을 가로 120, 세로 50으로 설정
+        gameButton.setPreferredSize(new Dimension(120, 50));
         rankButton.setPreferredSize(new Dimension(120, 50));
 
-        gameButton.addActionListener(new ActionListener() { // 게임 버튼 누르면 게임 선택 화면으로
+        gameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(mainPanel, "gameSelect");
             }
         });
 
-        rankButton.addActionListener(new ActionListener() { // 등수 버튼 누르면 등수 선택 화면으로
+        rankButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(mainPanel, "rankSelect");
             }
         });
 
-        // 게임, 등수 버튼을 buttonPanel(메인 화면)에 추가
         buttonPanel.add(gameButton);
         buttonPanel.add(rankButton);
 
-        // buttonPanel을 menuPanel의 중앙에 추가
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.gridx = 0;
@@ -66,16 +61,12 @@ public class CardMatching extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         menuPanel.add(buttonPanel, gbc);
 
-        // 게임 선택 화면 패널
         JPanel gameSelectPanel = createGameSelectPanel();
 
-        // 등수 확인 선택 화면 패널
         JPanel rankSelectPanel = createRankSelectPanel();
 
-        // 사진 고르기 등수 화면 패널
         JPanel game1RankPanel = createRankPanel("게임 1 등수", game1Scores);
 
-        // 패널을 CardLayout에 추가
         mainPanel.add(menuPanel, "menu");
         mainPanel.add(gameSelectPanel, "gameSelect");
         mainPanel.add(rankSelectPanel, "rankSelect");
@@ -86,8 +77,8 @@ public class CardMatching extends JFrame {
     }
 
     private JPanel createGameSelectPanel() {
-        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/card2.jpg")); // 이미지 파일 경로 설정
-        ImagePanel gameSelectPanel = new ImagePanel(icon.getImage()); // ImagePanel로 배경 설정
+        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/card2.jpg"));
+        ImagePanel gameSelectPanel = new ImagePanel(icon.getImage());
         gameSelectPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -138,8 +129,8 @@ public class CardMatching extends JFrame {
     }
 
     private JPanel createRankSelectPanel() {
-        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/rank.jpg")); // 이미지 파일 경로 설정
-        ImagePanel rankSelectPanel = new ImagePanel(icon.getImage()); // ImagePanel로 배경 설정
+        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/rank.jpg"));
+        ImagePanel rankSelectPanel = new ImagePanel(icon.getImage());
         rankSelectPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -234,12 +225,12 @@ public class CardMatching extends JFrame {
 
     private void launchWordGame() {
         JOptionPane.showMessageDialog(this, "게임 2 시작!");
-        // 실제 게임 로직 구현 또는 새 창 열기
+        // 게임 2 로직 구현 또는 새 창 열기
     }
 
     private void launchColorGame() {
         JOptionPane.showMessageDialog(this, "게임 3 시작!");
-        // 실제 게임 로직 구현 또는 새 창 열기
+        // 게임 3 로직 구현 또는 새 창 열기
     }
 
     public static void main(String[] args) {
