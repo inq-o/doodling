@@ -1,4 +1,3 @@
-//MatchCards.java
 package match;
 
 import javax.swing.*;
