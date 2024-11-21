@@ -1,4 +1,3 @@
-//CardMatching.java
 package project;
 
 import javax.swing.*;
@@ -10,12 +9,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import match.MatchCards;
 import match.ScoreManager;
+import matchN.MatchName;
+import matchN.ScoreManagerN;
 
 public class CardMatching extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private ArrayList<PlayerScore> game1Scores = new ArrayList<>();
+    private ArrayList<PlayerScore> game2Scores = new ArrayList<>(); // 게임 2 점수를 저장할 리스트 추가
     private MatchCards matchCards;
+    private MatchName matchName;
 
     public CardMatching() {
         setTitle("카드 매칭 게임");
@@ -25,7 +28,7 @@ public class CardMatching extends JFrame {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/card.jpg")); // 이미지 파일 경로 설정
+        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("resource/card.jpg"));
         ImagePanel menuPanel = new ImagePanel(icon.getImage());
 
         menuPanel.setLayout(new GridBagLayout());
@@ -34,7 +37,7 @@ public class CardMatching extends JFrame {
 
         JButton gameButton = new JButton("게임 시작");
         JButton rankButton = new JButton("등수 확인");
-        JButton exitButton = new JButton("게임 종료"); // 게임 종료 버튼 추가
+        JButton exitButton = new JButton("게임 종료");
 
         gameButton.setPreferredSize(new Dimension(120, 50));
         rankButton.setPreferredSize(new Dimension(120, 50));
@@ -54,7 +57,7 @@ public class CardMatching extends JFrame {
             }
         });
 
-        exitButton.addActionListener(new ActionListener() { // 종료 버튼 액션 리스너 추가
+        exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
@@ -63,7 +66,7 @@ public class CardMatching extends JFrame {
 
         buttonPanel.add(gameButton);
         buttonPanel.add(rankButton);
-        buttonPanel.add(exitButton); // 종료 버튼 추가
+        buttonPanel.add(exitButton);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -73,15 +76,16 @@ public class CardMatching extends JFrame {
         menuPanel.add(buttonPanel, gbc);
 
         JPanel gameSelectPanel = createGameSelectPanel();
-
         JPanel rankSelectPanel = createRankSelectPanel();
 
         JPanel game1RankPanel = createRankPanel("게임 1 등수", game1Scores);
+        JPanel game2RankPanel = createRankPanel("게임 2 등수", game2Scores); // 게임 2의 랭킹 패널 생성
 
         mainPanel.add(menuPanel, "menu");
         mainPanel.add(gameSelectPanel, "gameSelect");
         mainPanel.add(rankSelectPanel, "rankSelect");
         mainPanel.add(game1RankPanel, "game1Rank");
+        mainPanel.add(game2RankPanel, "game2Rank"); // 게임 2 랭킹 패널 추가
 
         add(mainPanel);
         cardLayout.show(mainPanel, "menu");
@@ -109,7 +113,7 @@ public class CardMatching extends JFrame {
         game2Button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchWordGame();
+                launchMatchNameGame();
             }
         });
 
@@ -161,7 +165,7 @@ public class CardMatching extends JFrame {
         game2RankButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "game2Rank");
+                cardLayout.show(mainPanel, "game2Rank"); // 기존에 있는 게임 2 등수 버튼을 올바르게 연결
             }
         });
 
@@ -234,9 +238,21 @@ public class CardMatching extends JFrame {
         matchCards.run();
     }
 
-    private void launchWordGame() {
-        JOptionPane.showMessageDialog(this, "게임 2 시작!");
-        // 게임 2 로직 구현 또는 새 창 열기
+    private void launchMatchNameGame() {
+        ScoreManagerN scoreManagerN = new ScoreManagerN();
+        matchName = new MatchName(scoreManagerN);
+        matchName.setGameEndListener(new MatchName.GameEndListener() {
+            @Override
+            public void onGameEnd(int finalScore) {
+                String playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "게임 종료", JOptionPane.PLAIN_MESSAGE);
+                if (playerName != null && !playerName.trim().isEmpty()) {
+                    game2Scores.add(new PlayerScore(playerName, finalScore)); // 게임 2 점수 저장
+                    JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
+                }
+                cardLayout.show(mainPanel, "menu");
+            }
+        });
+        matchName.run();
     }
 
     private void launchColorGame() {
