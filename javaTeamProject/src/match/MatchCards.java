@@ -1,3 +1,4 @@
+//MatchCards.java
 package match;
 
 import javax.swing.*;
@@ -48,25 +49,25 @@ public class MatchCards {
 
         frame.setVisible(true);
         frame.setLayout(new BorderLayout());
-        frame.setSize(boardWidth, boardHeight);
+        frame.setSize(boardWidth + 300, boardHeight + 200); // 창 크기 증가
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // 에러, 점수, 콤보 및 타이머 라벨 설정
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setText("Errors: " + errorCount);
 
-        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
         scoreLabel.setHorizontalAlignment(JLabel.CENTER);
         scoreLabel.setText("Score: " + scoreManager.getFinalScore());
 
-        timerLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        timerLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
         timerLabel.setHorizontalAlignment(JLabel.CENTER);
         timerLabel.setText("Time: " + remainingTime + "s");
 
-        comboLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        comboLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
         comboLabel.setHorizontalAlignment(JLabel.CENTER);
         comboLabel.setText("Combo: " + comboCount);
 
@@ -76,6 +77,26 @@ public class MatchCards {
         textPanel.add(errorLabel);
         textPanel.add(timerLabel);
         textPanel.add(comboLabel);
+
+        // 아이템 버튼 설정
+        JButton itemButton = new JButton("Use Item");
+        itemButton.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
+        itemButton.setEnabled(true); // 아이템 활성화
+        itemButton.addActionListener(new ActionListener() {
+            private boolean itemUsed = false;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!itemUsed) {
+                    itemUsed = true;
+                    itemButton.setEnabled(false); // 아이템 버튼 비활성화
+                    showUnmatchedCardsTemporarily();
+                }
+            }
+        });
+
+        // 텍스트 패널에 아이템 버튼 추가
+        textPanel.add(itemButton);
+
         frame.add(textPanel, BorderLayout.NORTH);
 
         board = new ArrayList<>();
@@ -114,6 +135,29 @@ public class MatchCards {
         hideCardTimer.setRepeats(false);
 
         startGameTimer();
+    }
+
+    private void showUnmatchedCardsTemporarily() {
+        // 매칭되지 않은 카드만 공개
+        for (int i = 0; i < board.size(); i++) {
+            if (!cardSet.get(i).isMatched) { // 매칭되지 않은 카드만 보여줌
+                board.get(i).setIcon(cardSet.get(i).cardImageIcon);
+            }
+        }
+
+        // 2초 후 매칭되지 않은 카드만 다시 뒤집기
+        Timer revealTimer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < board.size(); i++) {
+                    if (!cardSet.get(i).isMatched) { // 매칭되지 않은 카드만 뒤집기
+                        board.get(i).setIcon(cardBackImageIcon);
+                    }
+                }
+            }
+        });
+        revealTimer.setRepeats(false);
+        revealTimer.start();
     }
 
     // 게임 종료 이벤트 리스너 설정
@@ -202,8 +246,6 @@ public class MatchCards {
                                 scoreManager.decreaseScore();
                                 updateScore();
                                 hideCardTimer.start();
-                                comboCount = 0;
-                                updateScore(); // 매칭 실패 시 콤보 초기화 및 즉시 업데이트
                             } else {
                                 comboCount++;
                                 scoreManager.increaseScore(comboCount); // 콤보 점수 증가 반영
@@ -239,4 +281,3 @@ public class MatchCards {
         void onGameEnd(int finalScore);
     }
 }
-

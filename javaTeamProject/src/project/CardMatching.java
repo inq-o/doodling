@@ -1,3 +1,4 @@
+//CardMatching.java
 package project;
 
 import javax.swing.*;
@@ -33,9 +34,11 @@ public class CardMatching extends JFrame {
 
         JButton gameButton = new JButton("게임 시작");
         JButton rankButton = new JButton("등수 확인");
+        JButton exitButton = new JButton("게임 종료"); // 게임 종료 버튼 추가
 
         gameButton.setPreferredSize(new Dimension(120, 50));
         rankButton.setPreferredSize(new Dimension(120, 50));
+        exitButton.setPreferredSize(new Dimension(120, 50));
 
         gameButton.addActionListener(new ActionListener() {
             @Override
@@ -51,8 +54,16 @@ public class CardMatching extends JFrame {
             }
         });
 
+        exitButton.addActionListener(new ActionListener() { // 종료 버튼 액션 리스너 추가
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
         buttonPanel.add(gameButton);
         buttonPanel.add(rankButton);
+        buttonPanel.add(exitButton); // 종료 버튼 추가
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -255,4 +266,3 @@ class PlayerScore {
         return score;
     }
 }
-
