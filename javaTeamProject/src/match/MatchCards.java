@@ -247,12 +247,21 @@ public class MatchCards {
                                 updateScore();
                                 hideCardTimer.start();
                             } else {
+                                int index1 = board.indexOf(card1Selected);
+                                int index2 = board.indexOf(card2Selected);
+
+                                // 매칭된 카드의 상태를 업데이트
+                                cardSet.get(index1).isMatched = true;
+                                cardSet.get(index2).isMatched = true;
+
                                 comboCount++;
-                                scoreManager.increaseScore(comboCount); // 콤보 점수 증가 반영
+                                scoreManager.increaseScore(comboCount); // 콤보 점수를 인자로 전달하여 점수 증가 반영
                                 updateScore();
                                 if (scoreManager.getMatchSuccessCount() == 8) {
                                     endGame();
                                 }
+
+                                // 카드 선택 초기화
                                 card1Selected = null;
                                 card2Selected = null;
                             }
@@ -262,6 +271,7 @@ public class MatchCards {
             });
         }
     }
+
 
     private void hideCards() {
         if (card1Selected != null && card2Selected != null) {
