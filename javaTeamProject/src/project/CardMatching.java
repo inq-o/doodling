@@ -11,6 +11,7 @@ import match.MatchCards;
 import match.ScoreManager;
 import matchN.MatchName;
 import matchN.ScoreManagerN;
+import number.MatchSequence;
 
 public class CardMatching extends JFrame {
     private CardLayout cardLayout;
@@ -120,7 +121,7 @@ public class CardMatching extends JFrame {
         game3Button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchColorGame();
+                launchNumberGame();
             }
         });
 
@@ -255,10 +256,11 @@ public class CardMatching extends JFrame {
         matchName.run();
     }
 
-    private void launchColorGame() {
-        JOptionPane.showMessageDialog(this, "게임 3 시작!");
-        // 게임 3 로직 구현 또는 새 창 열기
+    private void launchNumberGame() {
+        MatchSequence matchSequence = new MatchSequence();
+        matchSequence.run();
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new CardMatching().setVisible(true));
