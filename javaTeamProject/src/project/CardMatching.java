@@ -106,7 +106,7 @@ public class CardMatching extends JFrame {
         game1Button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                launchCardMatchingGame();
+                launchMatchColorGame();
             }
         });
 
@@ -221,7 +221,7 @@ public class CardMatching extends JFrame {
         rankArea.setText(rankText.toString());
     }
 
-    private void launchCardMatchingGame() {
+    private void launchMatchColorGame() {
         ScoreManager scoreManager = new ScoreManager();
         matchCards = new MatchCards(scoreManager);
         matchCards.setGameEndListener(new MatchCards.GameEndListener() {
