@@ -13,8 +13,8 @@ public class ScoreManager {
         this.matchSuccessCount = 0;
     }
 
-    public void increaseScore() {
-        this.currentScore += matchPoints;
+    public void increaseScore(int comboCount) {
+        this.currentScore += matchPoints + (comboCount * 5); // 콤보에 따라 추가 점수 부여
         this.matchSuccessCount++;
     }
 

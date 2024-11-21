@@ -23,6 +23,7 @@ public class MatchCards {
     private JLabel errorLabel = new JLabel();
     private JLabel scoreLabel = new JLabel();
     private JLabel timerLabel = new JLabel();
+    private JLabel comboLabel = new JLabel(); // 콤보 라벨 추가
     private JPanel textPanel = new JPanel();
     private JPanel boardPanel = new JPanel();
 
@@ -35,6 +36,7 @@ public class MatchCards {
     private JButton card2Selected;
     private ScoreManager scoreManager;
     private GameEndListener gameEndListener;
+    private int comboCount = 0; // 콤보 횟수를 추적하기 위한 변수
 
     public MatchCards(ScoreManager scoreManager) {
         this.scoreManager = scoreManager;
@@ -51,7 +53,7 @@ public class MatchCards {
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // 에러, 점수 및 타이머 라벨 설정
+        // 에러, 점수, 콤보 및 타이머 라벨 설정
         errorLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setText("Errors: " + errorCount);
@@ -64,11 +66,16 @@ public class MatchCards {
         timerLabel.setHorizontalAlignment(JLabel.CENTER);
         timerLabel.setText("Time: " + remainingTime + "s");
 
-        textPanel.setLayout(new GridLayout(1, 3));
+        comboLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        comboLabel.setHorizontalAlignment(JLabel.CENTER);
+        comboLabel.setText("Combo: " + comboCount);
+
+        textPanel.setLayout(new GridLayout(1, 4));
         textPanel.setPreferredSize(new Dimension(boardWidth, 30));
         textPanel.add(scoreLabel);
         textPanel.add(errorLabel);
         textPanel.add(timerLabel);
+        textPanel.add(comboLabel);
         frame.add(textPanel, BorderLayout.NORTH);
 
         board = new ArrayList<>();
@@ -135,6 +142,7 @@ public class MatchCards {
 
     private void updateScore() {
         scoreLabel.setText("Score: " + scoreManager.getFinalScore());
+        comboLabel.setText("Combo: " + comboCount); // 콤보 라벨 업데이트
     }
 
     private void endGame() {
@@ -189,11 +197,16 @@ public class MatchCards {
                             if (!card1Selected.getIcon().equals(card2Selected.getIcon())) {
                                 errorCount++;
                                 errorLabel.setText("Errors: " + errorCount);
+                                comboCount = 0;
+                                updateScore(); // 에러 발생 시 콤보 초기화 및 즉시 업데이트
                                 scoreManager.decreaseScore();
                                 updateScore();
                                 hideCardTimer.start();
+                                comboCount = 0;
+                                updateScore(); // 매칭 실패 시 콤보 초기화 및 즉시 업데이트
                             } else {
-                                scoreManager.increaseScore();
+                                comboCount++;
+                                scoreManager.increaseScore(comboCount); // 콤보 점수 증가 반영
                                 updateScore();
                                 if (scoreManager.getMatchSuccessCount() == 8) {
                                     endGame();
@@ -226,3 +239,4 @@ public class MatchCards {
         void onGameEnd(int finalScore);
     }
 }
+
