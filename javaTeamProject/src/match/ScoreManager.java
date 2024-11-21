@@ -5,7 +5,7 @@ public class ScoreManager {
     private int timeBonus;
     private final int matchPoints = 20;
     private final int missPenalty = 5;
-    private int matchSuccessCount;      // 매칭 성공 횟수
+    private int matchSuccessCount;
 
     public ScoreManager() {
         this.currentScore = 0;
@@ -14,7 +14,7 @@ public class ScoreManager {
     }
 
     public void increaseScore(int comboCount) {
-        this.currentScore += matchPoints + (comboCount * 5); // 콤보에 따라 추가 점수 부여
+        this.currentScore += matchPoints + (comboCount * 5);
         this.matchSuccessCount++;
     }
 
@@ -32,7 +32,6 @@ public class ScoreManager {
         return this.currentScore;
     }
 
-    // 매칭 성공 횟수 반환 메서드
     public int getMatchSuccessCount() {
         return this.matchSuccessCount;
     }

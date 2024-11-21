@@ -5,7 +5,7 @@ import javax.swing.*;
 public class Card {
     String cardId;
     ImageIcon cardImageIcon;
-    boolean isMatched; // 카드 매칭 여부를 추적
+    boolean isMatched;
 
     public Card(String cardId, ImageIcon icon) {
         this.cardId = cardId;

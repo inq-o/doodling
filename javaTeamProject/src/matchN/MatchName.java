@@ -52,15 +52,15 @@ public class MatchName {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // 에러, 점수 및 타이머 라벨 설정
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setText("Errors: " + errorCount);
 
-        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         scoreLabel.setHorizontalAlignment(JLabel.CENTER);
         scoreLabel.setText("Score: " + scoreManagerN.getFinalScore());
 
-        timerLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        timerLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         timerLabel.setHorizontalAlignment(JLabel.CENTER);
         timerLabel.setText("Time: " + remainingTime + "s");
 
@@ -84,7 +84,6 @@ public class MatchName {
         frame.pack();
         frame.setVisible(true);
 
-        // 모든 카드를 2초 동안 보여주기
         startShowTimer = new Timer(2000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -97,7 +96,6 @@ public class MatchName {
         startShowTimer.setRepeats(false);
         startShowTimer.start();
 
-        // 매칭 실패 시 선택한 카드를 1초 동안 보여준 후 뒤집는 타이머
         hideCardTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -109,7 +107,6 @@ public class MatchName {
         startGameTimer();
     }
 
-    // 게임 종료 이벤트 리스너 설정
     public void setGameEndListener(GameEndListener listener) {
         this.gameEndListener = listener;
     }
@@ -158,7 +155,7 @@ public class MatchName {
                 cardSet.add(card);
             }
 
-            cardSet.addAll(cardSet); //카드 쌍 만들기
+            cardSet.addAll(cardSet);
         } else {
             for (int i = 1; i <=16; i++) {
                 Image cardImg = new ImageIcon(getClass().getClassLoader().getResource("resource/" + imageFileName + "/card" + i + ".png")).getImage();
@@ -198,7 +195,6 @@ public class MatchName {
                             int index = board.indexOf(card2Selected);
                             card2Selected.setIcon(cardSet.get(index).cardImageIcon);
 
-                            // 카드 매칭 여부 확인
                             if (!isCorrect()) {
                                 errorCount++;
                                 errorLabel.setText("Errors: " + errorCount);
@@ -238,7 +234,6 @@ public class MatchName {
         }
     }
 
-    // 게임 종료 이벤트 리스너 인터페이스
     public interface GameEndListener {
         void onGameEnd(int finalScore);
     }

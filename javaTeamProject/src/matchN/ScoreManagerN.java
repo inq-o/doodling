@@ -5,7 +5,7 @@ public class ScoreManagerN {
     private int timeBonus;
     private final int matchPoints = 20;
     private final int missPenalty = 5;
-    private int matchSuccessCount;      // 매칭 성공 횟수
+    private int matchSuccessCount;
 
     public ScoreManagerN() {
         this.currentScore = 0;
@@ -32,7 +32,6 @@ public class ScoreManagerN {
         return this.currentScore;
     }
 
-    // 매칭 성공 횟수 반환 메서드
     public int getMatchSuccessCount() {
         return this.matchSuccessCount;
     }

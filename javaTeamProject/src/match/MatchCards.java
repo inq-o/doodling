@@ -1,4 +1,3 @@
-//MatchCards.java
 package match;
 
 import javax.swing.*;
@@ -37,7 +36,7 @@ public class MatchCards {
     private JButton card2Selected;
     private ScoreManager scoreManager;
     private GameEndListener gameEndListener;
-    private int comboCount = 0; // 콤보 횟수를 추적하기 위한 변수
+    private int comboCount = 0;
 
     public MatchCards(ScoreManager scoreManager) {
         this.scoreManager = scoreManager;
@@ -49,25 +48,25 @@ public class MatchCards {
 
         frame.setVisible(true);
         frame.setLayout(new BorderLayout());
-        frame.setSize(boardWidth + 300, boardHeight + 200); // 창 크기 증가
+        frame.setSize(boardWidth + 300, boardHeight + 200);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // 에러, 점수, 콤보 및 타이머 라벨 설정
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setText("Errors: " + errorCount);
 
-        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
+        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         scoreLabel.setHorizontalAlignment(JLabel.CENTER);
         scoreLabel.setText("Score: " + scoreManager.getFinalScore());
 
-        timerLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
+        timerLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         timerLabel.setHorizontalAlignment(JLabel.CENTER);
         timerLabel.setText("Time: " + remainingTime + "s");
 
-        comboLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
+        comboLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         comboLabel.setHorizontalAlignment(JLabel.CENTER);
         comboLabel.setText("Combo: " + comboCount);
 
@@ -80,7 +79,7 @@ public class MatchCards {
 
         // 아이템 버튼 설정
         JButton itemButton = new JButton("Use Item");
-        itemButton.setFont(new Font("Arial", Font.PLAIN, 16)); // 글씨 크기 조정
+        itemButton.setFont(new Font("Arial", Font.PLAIN, 16));
         itemButton.setEnabled(true); // 아이템 활성화
         itemButton.addActionListener(new ActionListener() {
             private boolean itemUsed = false;
@@ -88,13 +87,12 @@ public class MatchCards {
             public void actionPerformed(ActionEvent e) {
                 if (!itemUsed) {
                     itemUsed = true;
-                    itemButton.setEnabled(false); // 아이템 버튼 비활성화
+                    itemButton.setEnabled(false);
                     showUnmatchedCardsTemporarily();
                 }
             }
         });
 
-        // 텍스트 패널에 아이템 버튼 추가
         textPanel.add(itemButton);
 
         frame.add(textPanel, BorderLayout.NORTH);
@@ -112,7 +110,6 @@ public class MatchCards {
         frame.pack();
         frame.setVisible(true);
 
-        // 모든 카드를 2초 동안 보여주기
         startShowTimer = new Timer(2000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -125,7 +122,6 @@ public class MatchCards {
         startShowTimer.setRepeats(false);
         startShowTimer.start();
 
-        // 매칭 실패 시 선택한 카드를 1초 동안 보여준 후 뒤집는 타이머
         hideCardTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -138,19 +134,18 @@ public class MatchCards {
     }
 
     private void showUnmatchedCardsTemporarily() {
-        // 매칭되지 않은 카드만 공개
+
         for (int i = 0; i < board.size(); i++) {
-            if (!cardSet.get(i).isMatched) { // 매칭되지 않은 카드만 보여줌
+            if (!cardSet.get(i).isMatched) {
                 board.get(i).setIcon(cardSet.get(i).cardImageIcon);
             }
         }
 
-        // 2초 후 매칭되지 않은 카드만 다시 뒤집기
         Timer revealTimer = new Timer(2000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < board.size(); i++) {
-                    if (!cardSet.get(i).isMatched) { // 매칭되지 않은 카드만 뒤집기
+                    if (!cardSet.get(i).isMatched) {
                         board.get(i).setIcon(cardBackImageIcon);
                     }
                 }
@@ -160,7 +155,6 @@ public class MatchCards {
         revealTimer.start();
     }
 
-    // 게임 종료 이벤트 리스너 설정
     public void setGameEndListener(GameEndListener listener) {
         this.gameEndListener = listener;
     }
@@ -186,7 +180,7 @@ public class MatchCards {
 
     private void updateScore() {
         scoreLabel.setText("Score: " + scoreManager.getFinalScore());
-        comboLabel.setText("Combo: " + comboCount); // 콤보 라벨 업데이트
+        comboLabel.setText("Combo: " + comboCount);
     }
 
     private void endGame() {
@@ -209,7 +203,7 @@ public class MatchCards {
             cardSet.add(card);
         }
 
-        cardSet.addAll(cardSet); // 카드 쌍 만들기
+        cardSet.addAll(cardSet);
 
         Image cardBackImg = new ImageIcon(getClass().getClassLoader().getResource("resource/card_back.png")).getImage();
         cardBackImageIcon = new ImageIcon(cardBackImg.getScaledInstance(cardWidth, cardHeight, java.awt.Image.SCALE_SMOOTH));
@@ -237,12 +231,11 @@ public class MatchCards {
                             int index = board.indexOf(card2Selected);
                             card2Selected.setIcon(cardSet.get(index).cardImageIcon);
 
-                            // 카드 매칭 여부 확인
                             if (!card1Selected.getIcon().equals(card2Selected.getIcon())) {
                                 errorCount++;
                                 errorLabel.setText("Errors: " + errorCount);
                                 comboCount = 0;
-                                updateScore(); // 에러 발생 시 콤보 초기화 및 즉시 업데이트
+                                updateScore();
                                 scoreManager.decreaseScore();
                                 updateScore();
                                 hideCardTimer.start();
@@ -250,18 +243,16 @@ public class MatchCards {
                                 int index1 = board.indexOf(card1Selected);
                                 int index2 = board.indexOf(card2Selected);
 
-                                // 매칭된 카드의 상태를 업데이트
                                 cardSet.get(index1).isMatched = true;
                                 cardSet.get(index2).isMatched = true;
 
                                 comboCount++;
-                                scoreManager.increaseScore(comboCount); // 콤보 점수를 인자로 전달하여 점수 증가 반영
+                                scoreManager.increaseScore(comboCount);
                                 updateScore();
                                 if (scoreManager.getMatchSuccessCount() == 8) {
                                     endGame();
                                 }
 
-                                // 카드 선택 초기화
                                 card1Selected = null;
                                 card2Selected = null;
                             }
@@ -286,7 +277,6 @@ public class MatchCards {
         }
     }
 
-    // 게임 종료 이벤트 리스너 인터페이스
     public interface GameEndListener {
         void onGameEnd(int finalScore);
     }
