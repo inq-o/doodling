@@ -17,7 +17,7 @@ public class CardMatching extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private ArrayList<PlayerScore> game1Scores = new ArrayList<>();
-    private ArrayList<PlayerScore> game2Scores = new ArrayList<>(); // 게임 2 점수를 저장할 리스트 추가
+    private ArrayList<PlayerScore> game2Scores = new ArrayList<>();
     private MatchCards matchCards;
     private MatchName matchName;
 
@@ -166,7 +166,7 @@ public class CardMatching extends JFrame {
         game2RankButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "game2Rank"); // 기존에 있는 게임 2 등수 버튼을 올바르게 연결
+                cardLayout.show(mainPanel, "game2Rank");
             }
         });
 
