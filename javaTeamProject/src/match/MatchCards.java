@@ -195,7 +195,7 @@ public class MatchCards {
     private void setupCards(String imageFileName) {
         cardSet = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
-            Image cardImg = new ImageIcon(getClass().getClassLoader().getResource("resource/color/card" + i + ".png")).getImage();
+            Image cardImg = new ImageIcon(MatchCards.class.getResource("/resource/color/card" + i + ".png")).getImage();
             ImageIcon cardImageIcon = new ImageIcon(cardImg.getScaledInstance(cardWidth, cardHeight, java.awt.Image.SCALE_SMOOTH));
             Card card = new Card("Card " + i, cardImageIcon);
             cardSet.add(card);
@@ -203,7 +203,7 @@ public class MatchCards {
 
         cardSet.addAll(cardSet);
 
-        Image cardBackImg = new ImageIcon(getClass().getClassLoader().getResource("resource/card_back.png")).getImage();
+        Image cardBackImg = new ImageIcon(MatchCards.class.getResource("/resource/card_back.png")).getImage();
         cardBackImageIcon = new ImageIcon(cardBackImg.getScaledInstance(cardWidth, cardHeight, java.awt.Image.SCALE_SMOOTH));
     }
 

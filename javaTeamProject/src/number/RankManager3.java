@@ -20,7 +20,7 @@ public class RankManager3 {
 
     // 랭킹 정렬
     public void sortRankings() {
-        Collections.sort(rankings, new Comparator<PlayerScore2>() {
+        rankings.sort(new Comparator<PlayerScore2>() {
             @Override
             public int compare(PlayerScore2 o1, PlayerScore2 o2) {
                 if (o2.getMatchedCards() != o1.getMatchedCards()) {

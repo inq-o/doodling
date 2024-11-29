@@ -33,7 +33,7 @@ public class MatchSequence {
         this.scoreManager = scoreManager;
 
         // 카드 뒷면 이미지 설정 및 크기 조정
-        Image cardBackImage = new ImageIcon(getClass().getClassLoader().getResource("resource/card_back.png")).getImage();
+        Image cardBackImage = new ImageIcon(MatchSequence.class.getResource("/resource/card_back.png")).getImage();
         cardBackIcon = new ImageIcon(cardBackImage.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
     }
 
