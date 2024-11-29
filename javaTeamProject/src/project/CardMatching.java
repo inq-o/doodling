@@ -12,12 +12,14 @@ import match.ScoreManager;
 import matchN.MatchName;
 import matchN.ScoreManagerN;
 import number.MatchSequence;
+import number.ScoreManagerS;
 
 public class CardMatching extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private ArrayList<PlayerScore> game1Scores = new ArrayList<>();
     private ArrayList<PlayerScore> game2Scores = new ArrayList<>();
+    private ArrayList<PlayerScore2> game3Scores = new ArrayList<>();
     private MatchCards matchCards;
     private MatchName matchName;
 
@@ -256,10 +258,42 @@ public class CardMatching extends JFrame {
         matchName.run();
     }
 
+    private void saveGame3Score(String playerName, int matchedCards, int remainingTime) {
+        if (playerName != null && !playerName.trim().isEmpty()) {
+            game3Scores.add(new PlayerScore2(playerName, matchedCards, remainingTime));
+            JOptionPane.showMessageDialog(this, "점수가 저장되었습니다!");
+        }
+    }
+
+    private void showGame3Rankings() {
+        game3Scores.sort((o1, o2) -> {
+            if (o2.getMatchedCards() != o1.getMatchedCards()) {
+                return Integer.compare(o2.getMatchedCards(), o1.getMatchedCards());
+            }
+            return Integer.compare(o2.getRemainingTime(), o1.getRemainingTime());
+        });
+
+        StringBuilder sb = new StringBuilder("Game 3 Rankings:\n");
+        for (int i = 0; i < game3Scores.size(); i++) {
+            sb.append(i + 1).append(". ").append(game3Scores.get(i).toString()).append("\n");
+        }
+        JOptionPane.showMessageDialog(this, sb.toString(), "Game 3 Rankings", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void launchNumberGame() {
-        MatchSequence matchSequence = new MatchSequence();
+        ScoreManagerS scoreManager = new ScoreManagerS();
+        MatchSequence matchSequence = new MatchSequence(scoreManager);
+
+        matchSequence.setGameEndListener((matchedCards, remainingTime) -> {
+            String playerName = JOptionPane.showInputDialog(this, "이름을 입력하세요:", "게임 종료", JOptionPane.PLAIN_MESSAGE);
+            saveGame3Score(playerName, matchedCards, remainingTime);
+            cardLayout.show(mainPanel, "menu");
+        });
+
         matchSequence.run();
     }
+
+
 
 
     public static void main(String[] args) {
@@ -267,20 +301,5 @@ public class CardMatching extends JFrame {
     }
 }
 
-class PlayerScore {
-    private String name;
-    private int score;
 
-    public PlayerScore(String name, int score) {
-        this.name = name;
-        this.score = score;
-    }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getScore() {
-        return score;
-    }
-}

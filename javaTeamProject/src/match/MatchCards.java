@@ -23,7 +23,7 @@ public class MatchCards {
     private JLabel errorLabel = new JLabel();
     private JLabel scoreLabel = new JLabel();
     private JLabel timerLabel = new JLabel();
-    private JLabel comboLabel = new JLabel(); // 콤보 라벨 추가
+    private JLabel comboLabel = new JLabel();
     private JPanel textPanel = new JPanel();
     private JPanel boardPanel = new JPanel();
 
@@ -53,7 +53,6 @@ public class MatchCards {
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // 에러, 점수, 콤보 및 타이머 라벨 설정
         errorLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setText("Errors: " + errorCount);
@@ -77,10 +76,9 @@ public class MatchCards {
         textPanel.add(timerLabel);
         textPanel.add(comboLabel);
 
-        // 아이템 버튼 설정
         JButton itemButton = new JButton("Use Item");
         itemButton.setFont(new Font("Arial", Font.PLAIN, 16));
-        itemButton.setEnabled(true); // 아이템 활성화
+        itemButton.setEnabled(true);
         itemButton.addActionListener(new ActionListener() {
             private boolean itemUsed = false;
             @Override
@@ -98,7 +96,7 @@ public class MatchCards {
         frame.add(textPanel, BorderLayout.NORTH);
 
         board = new ArrayList<>();
-        boardPanel.setLayout(new GridLayout(size, size));
+        boardPanel.setLayout(new GridLayout(size, size)); //size == 4 의 보드판 생성
         for (int i = 0; i < cardSet.size(); i++) {
             JButton tile = new JButton();
             tile.setPreferredSize(new Dimension(cardWidth, cardHeight));
