@@ -149,7 +149,7 @@ public class MatchName {
         cardSet = new ArrayList<>();
         if(isMatchingSameCard(imageFileName)) {
             for (int i = 1; i <=8; i++) {
-                Image cardImg = new ImageIcon(getClass().getClassLoader().getResource("resource/" + imageFileName + "/card" + i + ".png")).getImage();
+                Image cardImg = new ImageIcon(MatchName.class.getResource("/resource/" + imageFileName + "/card" + i + ".png")).getImage();
                 ImageIcon cardImageIcon = new ImageIcon(cardImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
                 CardN card = new CardN(i, cardImageIcon);
                 cardSet.add(card);
@@ -158,19 +158,19 @@ public class MatchName {
             cardSet.addAll(cardSet);
         } else {
             for (int i = 1; i <=16; i++) {
-                Image cardImg = new ImageIcon(getClass().getClassLoader().getResource("resource/" + imageFileName + "/card" + i + ".png")).getImage();
+                Image cardImg = new ImageIcon(getClass().getClassLoader().getResource("/resource/" + imageFileName + "/card" + i + ".png")).getImage();
                 ImageIcon cardImageIcon = new ImageIcon(cardImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
                 CardN cardN = new CardN(i%8, cardImageIcon);
                 cardSet.add(cardN);
             }
         }
 
-        Image cardBackImg = new ImageIcon(getClass().getClassLoader().getResource("resource/card_back.png")).getImage();
+        Image cardBackImg = new ImageIcon(getClass().getClassLoader().getResource("/resource/card_back.png")).getImage();
         cardBackImageIcon = new ImageIcon(cardBackImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
     }
 
     private boolean isMatchingSameCard(String imageFileName) {
-        return getClass().getClassLoader().getResource("resource/" + imageFileName + "/card" + 9 + ".png") == null;
+        return getClass().getClassLoader().getResource("/resource/" + imageFileName + "/card" + 9 + ".png") == null;
     }
 
     private void shuffleCards() {
