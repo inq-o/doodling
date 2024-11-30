@@ -2,33 +2,22 @@ package project;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
 
-import match.MatchCards;
-import match.ScoreManager;
-import matchN.MatchName;
-import matchN.ScoreManagerN;
-import number.MatchSequence;
-import number.ScoreManagerS;
+import GameManager.*;
 
 public class CardMatching extends JFrame {
     private final String GAME1_SCORE_FILE = "./game1.txt";
     private final String GAME2_SCORE_FILE = "./game2.txt";
 
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
-    private ArrayList<PlayerScore> game1Scores = new ArrayList<>();
-    private ArrayList<PlayerScore> game2Scores = new ArrayList<>();
-    private ArrayList<PlayerScore2> game3Scores = new ArrayList<>();
-    private MatchCards matchCards;
-    private MatchName matchName;
-
-    private String playerName;
+    private final CardLayout cardLayout;
+    private final JPanel mainPanel;
+    private final ArrayList<PlayerScore> game1Scores = new ArrayList<>();
+    private final ArrayList<PlayerScore> game2Scores = new ArrayList<>();
+//    private final ArrayList<PlayerScore2> game3Scores = new ArrayList<>();
 
     public CardMatching() {
         setTitle("카드 매칭 게임");
@@ -40,7 +29,7 @@ public class CardMatching extends JFrame {
         loadScoresFromFile(GAME1_SCORE_FILE, game1Scores);
         loadScoresFromFile(GAME2_SCORE_FILE, game2Scores);
 
-        playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "플레이어 이름", JOptionPane.PLAIN_MESSAGE);
+        String playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "플레이어 이름", JOptionPane.PLAIN_MESSAGE);
         if (playerName == null || playerName.trim().isEmpty()) {
             playerName = "Unknown";
         }
@@ -48,50 +37,35 @@ public class CardMatching extends JFrame {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        ImageIcon icon = new ImageIcon(CardMatching.class.getResource("/resource/main/background.png"));
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/backgrounds/title.png")));
         ImagePanel menuPanel = new ImagePanel(icon.getImage());
 
         menuPanel.setLayout(new GridBagLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setOpaque(false);
 
-        JButton gameButton = new JButton("게임 시작");
-        JButton rankButton = new JButton("등수 확인");
-        JButton exitButton = new JButton("게임 종료");
+        JButton gameButton = new JButton();
+        JButton rankButton = new JButton();
+        JButton exitButton = new JButton();
 
-        ImageIcon startIcon = new ImageIcon(CardMatching.class.getResource("/resource/main/start.png"));
-        gameButton.setIcon(new ImageIcon(startIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+        ImageIcon startIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/start.png")));
+        gameButton.setIcon(new ImageIcon(startIcon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH)));
 
-        ImageIcon rankIcon = new ImageIcon(CardMatching.class.getResource("/resource/main/rank.png"));
-        rankButton.setIcon(new ImageIcon(rankIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+        ImageIcon rankIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/rank.png")));
+        rankButton.setIcon(new ImageIcon(rankIcon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH)));
 
-        ImageIcon exitIcon = new ImageIcon(CardMatching.class.getResource("/resource/main/exit.png"));
-        exitButton.setIcon(new ImageIcon(exitIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+        ImageIcon exitIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/exit.png")));
+        exitButton.setIcon(new ImageIcon(exitIcon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH)));
 
         gameButton.setPreferredSize(new Dimension(120, 50));
         rankButton.setPreferredSize(new Dimension(120, 50));
         exitButton.setPreferredSize(new Dimension(120, 50));
 
-        gameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "gameSelect");
-            }
-        });
+        gameButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
 
-        rankButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "rankSelect");
-            }
-        });
+        rankButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
 
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
+        exitButton.addActionListener(e -> System.exit(0));
 
         buttonPanel.add(gameButton);
         buttonPanel.add(rankButton);
@@ -107,8 +81,8 @@ public class CardMatching extends JFrame {
         JPanel gameSelectPanel = createGameSelectPanel();
         JPanel rankSelectPanel = createRankSelectPanel();
 
-        JPanel game1RankPanel = createRankPanel("게임 1 등수", game1Scores);
-        JPanel game2RankPanel = createRankPanel("게임 2 등수", game2Scores); // 게임 2의 랭킹 패널 생성
+        JPanel game1RankPanel = createRankPanel(game1Scores);
+        JPanel game2RankPanel = createRankPanel(game2Scores); // 게임 2의 랭킹 패널 생성
 
 
         mainPanel.add(menuPanel, "menu");
@@ -155,94 +129,74 @@ public class CardMatching extends JFrame {
     }
 
     private JPanel createGameSelectPanel() {
-        ImageIcon icon = new ImageIcon(CardMatching.class.getResource("/resource/card2.jpg"));
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/backgrounds/gameSelection.png")));
         ImagePanel gameSelectPanel = new ImagePanel(icon.getImage());
         gameSelectPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        JButton game1Button = new JButton("게임 1");
-        JButton game2Button = new JButton("게임 2");
-        JButton game3Button = new JButton("게임 3");
-        JButton backButton = new JButton("메뉴로 돌아가기");
+        JButton game1Button = new JButton();
+        JButton game2Button = new JButton();
+//        JButton game3Button = new JButton();
+        JButton backButton = new JButton();
 
-        ImageIcon game1Icon = new ImageIcon(CardMatching.class.getResource("/resource/select/game1.png"));
+        ImageIcon game1Icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/selectGame1.png")));
         game1Button.setIcon(new ImageIcon(game1Icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         game1Button.setPreferredSize(new Dimension(200, 50));
 
-        ImageIcon game2Icon = new ImageIcon(CardMatching.class.getResource("/resource/select/game2.png"));
+        ImageIcon game2Icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/selectGame2.png")));
         game2Button.setIcon(new ImageIcon(game2Icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         game2Button.setPreferredSize(new Dimension(200, 50));
 
-        ImageIcon game3Icon = new ImageIcon(CardMatching.class.getResource("/resource/select/game3.png"));
-        game3Button.setIcon(new ImageIcon(game3Icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
-        game3Button.setPreferredSize(new Dimension(200, 50));
+//        ImageIcon game3Icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/select/selectGame3.png")));
+//        game3Button.setIcon(new ImageIcon(game3Icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
+//        game3Button.setPreferredSize(new Dimension(200, 50));
 
-        ImageIcon menuButtonIcon = new ImageIcon(CardMatching.class.getResource("/resource/menu.png"));
+        ImageIcon menuButtonIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/menu.png")));
         backButton.setIcon(new ImageIcon(menuButtonIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         backButton.setPreferredSize(new Dimension(200, 40));
 
-        game1Button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                launchMatchColorGame();
-            }
-        });
+        game1Button.addActionListener(e -> launchGame("color"));
 
-        game2Button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                launchMatchNameGame();
-            }
-        });
+        game2Button.addActionListener(e -> launchGame("similar"));
 
-        game3Button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                launchNumberGame();
-            }
-        });
+//        game3Button.addActionListener(e -> launchNumberGame());
 
         gbc.gridy = 0;
         gameSelectPanel.add(game1Button, gbc);
         gbc.gridy = 1;
         gameSelectPanel.add(game2Button, gbc);
-        gbc.gridy = 2;
-        gameSelectPanel.add(game3Button, gbc);
+//        gbc.gridy = 2;
+//        gameSelectPanel.add(game3Button, gbc);
         gbc.gridy = 3;
         gameSelectPanel.add(backButton, gbc);
 
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "menu");
-            }
-        });
+        backButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
 
         return gameSelectPanel;
     }
 
     private JPanel createRankSelectPanel() {
-        ImageIcon icon = new ImageIcon(CardMatching.class.getResource("/resource/rank.jpg"));
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/backgrounds/rank.jpg")));
         ImagePanel rankSelectPanel = new ImagePanel(icon.getImage());
         rankSelectPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        JButton game1RankButton = new JButton("게임 1 등수");
-        JButton game2RankButton = new JButton("게임 2 등수");
-        JButton backButton = new JButton("메뉴로 돌아가기");
+        JButton game1RankButton = new JButton();
+        JButton game2RankButton = new JButton();
+        JButton backButton = new JButton();
 
-        ImageIcon game1RankIcon = new ImageIcon(CardMatching.class.getResource("/resource/ranking/game1.png"));
+        ImageIcon game1RankIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/game1.png")));
         game1RankButton.setIcon(new ImageIcon(game1RankIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         game1RankButton.setPreferredSize(new Dimension(200, 50));
 
-        ImageIcon game2RankIcon = new ImageIcon(CardMatching.class.getResource("/resource/ranking/game2.png"));
+        ImageIcon game2RankIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/game2.png")));
         game2RankButton.setIcon(new ImageIcon(game2RankIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         game2RankButton.setPreferredSize(new Dimension(200, 50));
 
-        ImageIcon menuButtonIcon = new ImageIcon(CardMatching.class.getResource("/resource/menu.png"));
+        ImageIcon menuButtonIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/menu.png")));
         backButton.setIcon(new ImageIcon(menuButtonIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         backButton.setPreferredSize(new Dimension(200, 50));
 
@@ -264,9 +218,9 @@ public class CardMatching extends JFrame {
         return rankSelectPanel;
     }
 
-    private JPanel createRankPanel(String title, ArrayList<PlayerScore> scores) {
+    private JPanel createRankPanel(ArrayList<PlayerScore> scores) {
         JPanel rankPanel = new JPanel(new BorderLayout());
-        JLabel titleLabel = new JLabel(title, JLabel.CENTER);
+        JLabel titleLabel = new JLabel();
         rankPanel.add(titleLabel, BorderLayout.NORTH);
 
         JTextArea rankTextArea = new JTextArea(10, 30);
@@ -289,7 +243,7 @@ public class CardMatching extends JFrame {
     }
 
     private void updateRankArea(JTextArea rankArea, ArrayList<PlayerScore> scores) {
-        Collections.sort(scores, Comparator.comparingInt(PlayerScore::getScore).reversed());
+        scores.sort(Comparator.comparingInt(PlayerScore::getScore).reversed());
         StringBuilder rankText = new StringBuilder();
         for (int i = 0; i < scores.size(); i++) {
             rankText.append(i + 1).append(". ").append(scores.get(i).getName())
@@ -298,57 +252,67 @@ public class CardMatching extends JFrame {
         rankArea.setText(rankText.toString());
     }
 
-    private void launchMatchColorGame() {
+    private void launchGame(String gameName) {
         ScoreManager scoreManager = new ScoreManager();
-        matchCards = new MatchCards(scoreManager);
-        matchCards.setGameEndListener(new MatchCards.GameEndListener() {
-            @Override
-            public void onGameEnd(int finalScore) {
-                game1Scores.add(new PlayerScore(playerName, finalScore)); // 입력 없이 자동 저장
+
+        MatchCards matchCards = new MatchCards(scoreManager);
+        matchCards.setGameEndListener(finalScore -> {
+            String playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "게임 종료", JOptionPane.PLAIN_MESSAGE);
+
+            if (playerName != null && !playerName.trim().isEmpty()) {
+
+                if (gameName.equals("color")) {
+                    game1Scores.add(new PlayerScore(playerName, finalScore));
+                }
+                else if (gameName.equals("similar")) {
+                    game2Scores.add(new PlayerScore(playerName, finalScore));
+                }
                 JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
-                cardLayout.show(mainPanel, "menu");
             }
+
+            cardLayout.show(mainPanel, "menu");
         });
-        matchCards.run();
+
+        matchCards.run(gameName);
     }
 
-
-    private void launchMatchNameGame() {
-        ScoreManagerN scoreManagerN = new ScoreManagerN();
-        matchName = new MatchName(scoreManagerN);
-        matchName.setGameEndListener(new MatchName.GameEndListener() {
-            @Override
-            public void onGameEnd(int finalScore) {
-                game2Scores.add(new PlayerScore(playerName, finalScore)); // 입력 없이 자동 저장
-                JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
-                cardLayout.show(mainPanel, "menu");
-            }
-        });
-        matchName.run();
+    // Temporarily disabled game3
+    /*private void saveGame3Score(String playerName, int matchedCards, int remainingTime) {
+        if (playerName != null && !playerName.trim().isEmpty()) {
+            game3Scores.add(new PlayerScore2(playerName, matchedCards, remainingTime));
+            JOptionPane.showMessageDialog(this, "점수가 저장되었습니다!");
+        }
     }
 
+    private void showGame3Rankings() {
+        game3Scores.sort((o1, o2) -> {
+            if (o2.getMatchedCards() != o1.getMatchedCards()) {
+                return Integer.compare(o2.getMatchedCards(), o1.getMatchedCards());
+            }
+            return Integer.compare(o2.getRemainingTime(), o1.getRemainingTime());
+        });
 
-//    private void saveGame3Score(String playerName, int matchedCards, int remainingTime) {
-//        if (playerName != null && !playerName.trim().isEmpty()) {
-//            game3Scores.add(new PlayerScore2(playerName, matchedCards, remainingTime));
-//            JOptionPane.showMessageDialog(this, "점수가 저장되었습니다!");
-//        }
-//    }
-//
-//    private void showGame3Rankings() {
-//        game3Scores.sort((o1, o2) -> {
-//            if (o2.getMatchedCards() != o1.getMatchedCards()) {
-//                return Integer.compare(o2.getMatchedCards(), o1.getMatchedCards());
-//            }
-//            return Integer.compare(o2.getRemainingTime(), o1.getRemainingTime());
-//        });
-//
-//        StringBuilder sb = new StringBuilder("Game 3 Rankings:\n");
-//        for (int i = 0; i < game3Scores.size(); i++) {
-//            sb.append(i + 1).append(". ").append(game3Scores.get(i).toString()).append("\n");
-//        }
-//        JOptionPane.showMessageDialog(this, sb.toString(), "Game 3 Rankings", JOptionPane.INFORMATION_MESSAGE);
-//    }
+    private void saveGame3Score(String playerName, int matchedCards, int remainingTime) {
+        if (playerName != null && !playerName.trim().isEmpty()) {
+            game3Scores.add(new PlayerScore2(playerName, matchedCards, remainingTime));
+            JOptionPane.showMessageDialog(this, "점수가 저장되었습니다!");
+        }
+    }
+
+    private void showGame3Rankings() {
+        game3Scores.sort((o1, o2) -> {
+            if (o2.getMatchedCards() != o1.getMatchedCards()) {
+                return Integer.compare(o2.getMatchedCards(), o1.getMatchedCards());
+            }
+            return Integer.compare(o2.getRemainingTime(), o1.getRemainingTime());
+        });
+
+        StringBuilder sb = new StringBuilder("Game 3 Rankings:\n");
+        for (int i = 0; i < game3Scores.size(); i++) {
+            sb.append(i + 1).append(". ").append(game3Scores.get(i).toString()).append("\n");
+        }
+        JOptionPane.showMessageDialog(this, sb.toString(), "Game 3 Rankings", JOptionPane.INFORMATION_MESSAGE);
+    }
 
     private void launchNumberGame() {
         ScoreManagerS scoreManager = new ScoreManagerS();
@@ -361,7 +325,7 @@ public class CardMatching extends JFrame {
         });
 
         matchSequence.run();
-    }
+    }*/
 
 
     public static void main(String[] args) {
