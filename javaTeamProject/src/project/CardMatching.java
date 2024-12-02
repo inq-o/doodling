@@ -19,6 +19,8 @@ public class CardMatching extends JFrame {
     private final ArrayList<PlayerScore> game2Scores = new ArrayList<>();
 //    private final ArrayList<PlayerScore2> game3Scores = new ArrayList<>();
 
+    String playerName;
+
     public CardMatching() {
         setTitle("카드 매칭 게임");
         setSize(700, 700);
@@ -29,7 +31,7 @@ public class CardMatching extends JFrame {
         loadScoresFromFile(GAME1_SCORE_FILE, game1Scores);
         loadScoresFromFile(GAME2_SCORE_FILE, game2Scores);
 
-        String playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "플레이어 이름", JOptionPane.PLAIN_MESSAGE);
+        playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "플레이어 이름", JOptionPane.PLAIN_MESSAGE);
         if (playerName == null || playerName.trim().isEmpty()) {
             playerName = "Unknown";
         }
@@ -257,24 +259,18 @@ public class CardMatching extends JFrame {
 
         MatchCards matchCards = new MatchCards(scoreManager);
         matchCards.setGameEndListener(finalScore -> {
-            String playerName = JOptionPane.showInputDialog(CardMatching.this, "이름을 입력하세요:", "게임 종료", JOptionPane.PLAIN_MESSAGE);
-
-            if (playerName != null && !playerName.trim().isEmpty()) {
-
-                if (gameName.equals("color")) {
-                    game1Scores.add(new PlayerScore(playerName, finalScore));
-                }
-                else if (gameName.equals("similar")) {
-                    game2Scores.add(new PlayerScore(playerName, finalScore));
-                }
-                JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
+            if (gameName.equals("color")) {
+                game1Scores.add(new PlayerScore(playerName, finalScore));
+            } else if (gameName.equals("similar")) {
+                game2Scores.add(new PlayerScore(playerName, finalScore));
             }
-
+            JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
             cardLayout.show(mainPanel, "menu");
         });
 
         matchCards.run(gameName);
     }
+
 
     // Temporarily disabled game3
     /*private void saveGame3Score(String playerName, int matchedCards, int remainingTime) {
