@@ -84,19 +84,18 @@ public class CardMatching extends JFrame {
         JPanel rankSelectPanel = createRankSelectPanel();
 
         JPanel game1RankPanel = createRankPanel(game1Scores);
-        JPanel game2RankPanel = createRankPanel(game2Scores); // 게임 2의 랭킹 패널 생성
+        JPanel game2RankPanel = createRankPanel(game2Scores);
 
 
         mainPanel.add(menuPanel, "menu");
         mainPanel.add(gameSelectPanel, "gameSelect");
         mainPanel.add(rankSelectPanel, "rankSelect");
         mainPanel.add(game1RankPanel, "game1Rank");
-        mainPanel.add(game2RankPanel, "game2Rank"); // 게임 2 랭킹 패널 추가
+        mainPanel.add(game2RankPanel, "game2Rank");
 
         add(mainPanel);
         cardLayout.show(mainPanel, "menu");
 
-        // 프로그램 종료 시 점수 저장
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             saveScoresToFile(GAME1_SCORE_FILE, game1Scores);
             saveScoresToFile(GAME2_SCORE_FILE, game2Scores);
@@ -255,6 +254,7 @@ public class CardMatching extends JFrame {
     }
 
     private void launchGame(String gameName) {
+        System.out.println("Launching game mode: " + gameName); // 디버깅 로그 추가
         ScoreManager scoreManager = new ScoreManager();
         MatchCards matchCards = new MatchCards(scoreManager);
 
@@ -262,12 +262,13 @@ public class CardMatching extends JFrame {
         mainPanel.add(gamePanel, "gamePanel");
 
         matchCards.setGameEndListener(finalScore -> {
+            System.out.println("Game mode: " + gameName + " ended with score: " + finalScore); // 디버깅 로그 추가
             if (gameName.equals("color")) {
                 game1Scores.add(new PlayerScore(playerName, finalScore));
             } else if (gameName.equals("similar")) {
                 game2Scores.add(new PlayerScore(playerName, finalScore));
             }
-            JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
+            //JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
             cardLayout.show(mainPanel, "menu");
         });
 

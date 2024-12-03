@@ -32,13 +32,12 @@ public class MatchCards {
     private Timer hideCardTimer;
     private JButton card1Selected;
     private JButton card2Selected;
-    private ScoreManager scoreManager;
+    private final ScoreManager scoreManager;
     private GameEndListener gameEndListener;
     private int comboCount = 0;
 
     public MatchCards(ScoreManager scoreManager) {
         this.scoreManager = scoreManager;
-
         hideCardTimer = new Timer(1000, e -> hideCards());
         hideCardTimer.setRepeats(false);
     }
@@ -57,9 +56,7 @@ public class MatchCards {
         gamePanel.add(boardPanel, BorderLayout.CENTER);
 
         initializeCardListeners();
-
         showAllCardsInitially();
-
         startGameTimer();
 
         return gamePanel;
@@ -78,7 +75,7 @@ public class MatchCards {
         timerLabel.setText("Time: " + remainingTime + "s");
 
         comboLabel.setFont(statusFont);
-        comboLabel.setText("Combo: " + comboCount);
+        comboLabel.setText("Combo: 0");
 
         textPanel.setLayout(new GridLayout(1, 5));
         textPanel.add(scoreLabel);
@@ -86,7 +83,7 @@ public class MatchCards {
         textPanel.add(timerLabel);
         textPanel.add(comboLabel);
 
-        itemButton.setFont(new Font("Arial", Font.PLAIN, 16)); // 아이템 버튼은 조금 작은 크기 유지
+        itemButton.setFont(new Font("Arial", Font.PLAIN, 16));
         itemButton.addActionListener(e -> {
             showUnmatchedCardsTemporarily();
             itemButton.setEnabled(false);
@@ -94,11 +91,10 @@ public class MatchCards {
         textPanel.add(itemButton);
     }
 
-
     private void setupBoardPanel() {
         boardPanel.setLayout(new GridLayout(size, size));
         board = new ArrayList<>();
-        for (int i = 0; i < cardSet.size(); i++) {
+        for (Card card : cardSet) {
             JButton tile = new JButton();
             tile.setPreferredSize(new Dimension(cardWidth, cardHeight));
             tile.setIcon(cardBackImageIcon);
@@ -109,25 +105,38 @@ public class MatchCards {
 
     private void setupCards(String gameName) {
         cardSet.clear();
+
         Image cardBackImg = new ImageIcon(Objects.requireNonNull(
                 MatchCards.class.getResource("/resource/card_back.png"))).getImage();
         cardBackImageIcon = new ImageIcon(cardBackImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
 
         if (gameName.equals("similar")) {
             for (int i = 1; i <= 8; i++) {
-                ImageIcon colorImage = new ImageIcon(Objects.requireNonNull(
-                        MatchCards.class.getResource("/resource/" + gameName + "/card" + i + ".png")));
-                ImageIcon wordImage = new ImageIcon(Objects.requireNonNull(
-                        MatchCards.class.getResource("/resource/" + gameName + "/card" + (i + 8) + ".png")));
-                cardSet.add(new Card("Card " + i, colorImage));
-                cardSet.add(new Card("Card " + i, wordImage));
+                Image colorImg = new ImageIcon(Objects.requireNonNull(
+                        MatchCards.class.getResource("/resource/" + gameName + "/card" + i + ".png"))).getImage();
+                Image wordImg = new ImageIcon(Objects.requireNonNull(
+                        MatchCards.class.getResource("/resource/" + gameName + "/card" + (i + 8) + ".png"))).getImage();
+
+                ImageIcon cardColorIcon = new ImageIcon(colorImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
+                ImageIcon cardWordIcon = new ImageIcon(wordImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
+
+                Card card1 = new Card("Card " + i, cardColorIcon);
+                Card card2 = new Card("Card " + i, cardWordIcon);
+
+                cardSet.add(card1);
+                cardSet.add(card2);
             }
         } else {
             for (int i = 1; i <= 8; i++) {
-                ImageIcon cardImage = new ImageIcon(Objects.requireNonNull(
-                        MatchCards.class.getResource("/resource/" + gameName + "/card" + i + ".png")));
-                cardSet.add(new Card("Card " + i, cardImage));
-                cardSet.add(new Card("Card " + i, cardImage));
+                Image cardImg = new ImageIcon(Objects.requireNonNull(
+                        MatchCards.class.getResource("/resource/" + gameName + "/card" + i + ".png"))).getImage();
+                ImageIcon cardIcon = new ImageIcon(cardImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
+
+                Card card1 = new Card("Card " + i, cardIcon);
+                Card card2 = new Card("Card " + i, cardIcon);
+
+                cardSet.add(card1);
+                cardSet.add(card2);
             }
         }
     }
@@ -139,66 +148,81 @@ public class MatchCards {
     private void initializeCardListeners() {
         for (int i = 0; i < board.size(); i++) {
             JButton tile = board.get(i);
-            tile.addActionListener(e -> {
-                JButton clickedCard = (JButton) e.getSource();
-                if (clickedCard.getIcon() == cardBackImageIcon) {
-                    handleCardSelection(clickedCard);
-                }
-            });
+            tile.addActionListener(e -> handleCardSelection(tile));
         }
     }
 
     private void handleCardSelection(JButton clickedCard) {
+        if (clickedCard.getIcon() != cardBackImageIcon) return;
+
         if (card1Selected == null) {
             card1Selected = clickedCard;
-            card1Selected.setIcon(cardSet.get(board.indexOf(card1Selected)).getCardImageIcon());
+            revealCard(card1Selected);
         } else if (card2Selected == null) {
             card2Selected = clickedCard;
-            card2Selected.setIcon(cardSet.get(board.indexOf(card2Selected)).getCardImageIcon());
+            revealCard(card2Selected);
 
-            if (!isMatched(card1Selected, card2Selected)) {
-                errorCount++;
-                errorLabel.setText("Errors: " + errorCount);
-                comboCount = 0;
-                scoreManager.decreaseScore();
-                updateScore();
-                hideCardTimer.start();
+            if (isMatched(card1Selected, card2Selected)) {
+                processMatchSuccess();
             } else {
-                markAsMatched();
-                if (scoreManager.getMatchSuccessCount() == 8) {
-                    endGame();
-                }
+                processMatchFailure();
             }
         }
     }
 
-    private boolean isMatched(JButton first, JButton second) {
-        return cardSet.get(board.indexOf(first)).getCardId().equals(
-                cardSet.get(board.indexOf(second)).getCardId()
-        );
+    private void revealCard(JButton card) {
+        int index = board.indexOf(card);
+        card.setIcon(cardSet.get(index).getCardImageIcon());
     }
 
-    private void markAsMatched() {
-        int index1 = board.indexOf(card1Selected);
-        int index2 = board.indexOf(card2Selected);
-        cardSet.get(index1).isMatched = true;
-        cardSet.get(index2).isMatched = true;
+    private boolean isMatched(JButton first, JButton second) {
+        String id1 = cardSet.get(board.indexOf(first)).getCardId();
+        String id2 = cardSet.get(board.indexOf(second)).getCardId();
+        return id1.equals(id2);
+    }
 
-        comboCount++;
-        scoreManager.increaseScore(comboCount);
+    private void processMatchSuccess() {
+        markAsMatched(card1Selected, card2Selected);
+
+        if (comboCount > 0) {
+            comboCount++;
+        } else {
+            comboCount = 1;
+        }
+
+        scoreManager.increaseScore(comboCount - 1);
         updateScore();
 
+        if (scoreManager.getMatchSuccessCount() == 8) {
+            endGame();
+        }
+
+        resetCardSelection();
+    }
+
+    private void processMatchFailure() {
+        errorCount++;
+        comboCount = 0;
+        updateScore();
+        hideCardTimer.start();
+    }
+
+    private void markAsMatched(JButton first, JButton second) {
+        int index1 = board.indexOf(first);
+        int index2 = board.indexOf(second);
+        cardSet.get(index1).isMatched = true;
+        cardSet.get(index2).isMatched = true;
+    }
+
+    private void resetCardSelection() {
         card1Selected = null;
         card2Selected = null;
     }
 
     private void hideCards() {
-        if (card1Selected != null && card2Selected != null) {
-            card1Selected.setIcon(cardBackImageIcon);
-            card2Selected.setIcon(cardBackImageIcon);
-            card1Selected = null;
-            card2Selected = null;
-        }
+        if (card1Selected != null) card1Selected.setIcon(cardBackImageIcon);
+        if (card2Selected != null) card2Selected.setIcon(cardBackImageIcon);
+        resetCardSelection();
     }
 
     private void showUnmatchedCardsTemporarily() {
@@ -246,12 +270,16 @@ public class MatchCards {
 
     private void updateScore() {
         scoreLabel.setText("Score: " + scoreManager.getFinalScore());
-        comboLabel.setText("Combo: " + comboCount);
+
+        int displayCombo = comboCount > 1 ? comboCount - 1 : 0;
+        comboLabel.setText("Combo: " + displayCombo);
+
+        errorLabel.setText("Errors: " + errorCount);
     }
 
     private void endGame() {
         gameTimer.stop();
-        JOptionPane.showMessageDialog(null, "Game Over! Final Score: " + scoreManager.getFinalScore());
+        JOptionPane.showMessageDialog(null, "게임 종료!\n최종 점수 : " + scoreManager.getFinalScore());
         if (gameEndListener != null) {
             gameEndListener.onGameEnd(scoreManager.getFinalScore());
         }
