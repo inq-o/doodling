@@ -32,7 +32,7 @@ public class MatchCards {
     private Timer hideCardTimer;
     private JButton card1Selected;
     private JButton card2Selected;
-    private final ScoreManager scoreManager;
+    private ScoreManager scoreManager;
     private GameEndListener gameEndListener;
     private int comboCount = 0;
 
@@ -258,7 +258,7 @@ public class MatchCards {
     }
 
     private void startGameTimer() {
-        gameTimer = new Timer(1000, e -> {
+        gameTimer = new Timer(3000, e -> {
             remainingTime--;
             timerLabel.setText("Time: " + remainingTime + "s");
             if (remainingTime <= 0) {
