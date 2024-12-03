@@ -256,8 +256,11 @@ public class CardMatching extends JFrame {
 
     private void launchGame(String gameName) {
         ScoreManager scoreManager = new ScoreManager();
-
         MatchCards matchCards = new MatchCards(scoreManager);
+
+        JPanel gamePanel = matchCards.createGamePanel(gameName);
+        mainPanel.add(gamePanel, "gamePanel");
+
         matchCards.setGameEndListener(finalScore -> {
             if (gameName.equals("color")) {
                 game1Scores.add(new PlayerScore(playerName, finalScore));
@@ -268,8 +271,9 @@ public class CardMatching extends JFrame {
             cardLayout.show(mainPanel, "menu");
         });
 
-        matchCards.run(gameName);
+        cardLayout.show(mainPanel, "gamePanel");
     }
+
 
 
     // Temporarily disabled game3
