@@ -115,7 +115,7 @@ public class MatchCards {
         cardSet.clear();
 
         Image cardBackImg = new ImageIcon(Objects.requireNonNull(
-                MatchCards.class.getResource("/resource/qm.png"))).getImage();
+                MatchCards.class.getResource("/resource/buttons/qm.png"))).getImage();
         cardBackImageIcon = new ImageIcon(cardBackImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
 
         if (gameName.equals("similar")) {
@@ -267,9 +267,10 @@ public class MatchCards {
 
     private void processMatchFailure() {
         errorCount++;
-        comboCount = 0;
-        updateScore();
-        hideCardTimer.start();
+        scoreManager.decreaseScore(); // 매칭 실패 시 점수 감소
+        comboCount = 0; // 콤보 초기화
+        updateScore(); // 점수 UI 업데이트
+        hideCardTimer.start(); // 카드를 숨기는 타이머 시작
     }
 
     private void markAsMatched(JButton first, JButton second) {
@@ -344,9 +345,12 @@ public class MatchCards {
 
     private void endGame() {
         gameTimer.stop();
-        JOptionPane.showMessageDialog(null, "게임 종료!\n최종 점수 : " + scoreManager.getFinalScore());
+        // 게임 종료 시, 남은 시간을 점수에 추가
+        int finalScore = scoreManager.getFinalScore() + remainingTime;
+        JOptionPane.showMessageDialog(null, "게임 종료!\n최종 점수 : " + finalScore);
+
         if (gameEndListener != null) {
-            gameEndListener.onGameEnd(scoreManager.getFinalScore());
+            gameEndListener.onGameEnd(finalScore); // 최종 점수 전달
         }
     }
 

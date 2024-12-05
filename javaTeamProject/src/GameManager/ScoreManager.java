@@ -32,4 +32,6 @@ public class ScoreManager {
     public int getMatchSuccessCount() {
         return this.matchSuccessCount;
     }
+
+
 }
