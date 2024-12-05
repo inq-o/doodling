@@ -1,12 +1,14 @@
 package GameManager;
 
 import Cards.Card;
+import project.CardMatching;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MatchCards {
     private int size = 4;
@@ -23,7 +25,7 @@ public class MatchCards {
     private JLabel comboLabel = new JLabel();
     private JPanel textPanel = new JPanel();
     private JPanel boardPanel = new JPanel();
-    private JButton itemButton = new JButton("Use Item");
+    private JButton itemButton = new JButton("Item");
 
     private int errorCount = 0;
     private int remainingTime = 60;
@@ -41,7 +43,6 @@ public class MatchCards {
         hideCardTimer = new Timer(1000, e -> hideCards());
         hideCardTimer.setRepeats(false);
     }
-
     public JPanel createGamePanel(String gameName) {
         setupCards(gameName);
         shuffleCards();
@@ -63,7 +64,7 @@ public class MatchCards {
     }
 
     private void setupStatusPanel() {
-        Font statusFont = new Font("Arial", Font.BOLD, 20);
+        Font statusFont = new Font("Arial", Font.BOLD, 25);
 
         errorLabel.setFont(statusFont);
         errorLabel.setText("Errors: " + errorCount);
@@ -82,8 +83,11 @@ public class MatchCards {
         textPanel.add(errorLabel);
         textPanel.add(timerLabel);
         textPanel.add(comboLabel);
+        ImageIcon itemIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/showItem.png")));
+        itemButton.setIcon(new ImageIcon(itemIcon.getImage().getScaledInstance(150, 50, Image.SCALE_SMOOTH)));
+        itemButton.setPreferredSize(new Dimension(150, 50));
 
-        itemButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        // itemButton.setFont(new Font("Arial", Font.PLAIN, 10));
         itemButton.addActionListener(e -> {
             showUnmatchedCardsTemporarily();
             itemButton.setEnabled(false);
@@ -113,9 +117,9 @@ public class MatchCards {
         if (gameName.equals("similar")) {
             for (int i = 1; i <= 8; i++) {
                 Image colorImg = new ImageIcon(Objects.requireNonNull(
-                        MatchCards.class.getResource("/resource/" + gameName + "/card" + i + ".png"))).getImage();
+                        MatchCards.class.getResource("/resource/"+gameName + "/card" + i + ".png"))).getImage();
                 Image wordImg = new ImageIcon(Objects.requireNonNull(
-                        MatchCards.class.getResource("/resource/" + gameName + "/card" + (i + 8) + ".png"))).getImage();
+                        MatchCards.class.getResource("/resource/"+gameName + "/card" + (i + 8) + ".png"))).getImage();
 
                 ImageIcon cardColorIcon = new ImageIcon(colorImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
                 ImageIcon cardWordIcon = new ImageIcon(wordImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
@@ -129,7 +133,7 @@ public class MatchCards {
         } else {
             for (int i = 1; i <= 8; i++) {
                 Image cardImg = new ImageIcon(Objects.requireNonNull(
-                        MatchCards.class.getResource("/resource/" + gameName + "/card" + i + ".png"))).getImage();
+                        MatchCards.class.getResource("/resource/"+gameName + "/card" + i + ".png"))).getImage();
                 ImageIcon cardIcon = new ImageIcon(cardImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
 
                 Card card1 = new Card("Card " + i, cardIcon);
@@ -193,13 +197,48 @@ public class MatchCards {
         scoreManager.increaseScore(comboCount - 1);
         updateScore();
 
+        if (comboCount > 1) {
+            triggerComboAnimation();
+        }
+
         if (scoreManager.getMatchSuccessCount() == 8) {
             endGame();
         }
 
         resetCardSelection();
     }
+    private void triggerComboAnimation() {
+        Timer animationTimer = new Timer(50, null); // 50ms마다 실행
+        int originalFontSize = 25;
+        int[] fontSize = {originalFontSize};
+        int maxFontSize = 40; // 최대 폰트 크기
+        AtomicBoolean increasing = new AtomicBoolean(true); // 증가 여부를 AtomicBoolean으로 변경
 
+        animationTimer.addActionListener(e -> {
+            // 폰트 크기 변경
+            if (increasing.get()) {
+                fontSize[0] += 2;
+            } else {
+                fontSize[0] -= 2;
+            }
+
+            // 폰트 크기 적용
+            comboLabel.setFont(new Font("Arial", Font.BOLD, fontSize[0]));
+            comboLabel.setForeground(new Color(255, 0, 0)); // 빨간색 강조
+
+            // 애니메이션의 증가 및 감소 처리
+            if (fontSize[0] >= maxFontSize) {
+                increasing.set(false); // 증가 종료, 감소 시작
+            } else if (fontSize[0] <= originalFontSize) {
+                animationTimer.stop(); // 애니메이션 종료
+                comboLabel.setForeground(Color.BLACK); // 원래 색상 복원
+            }
+
+            comboLabel.repaint(); // 레이블 다시 그리기
+        });
+
+        animationTimer.start(); // 애니메이션 시작
+    }
     private void processMatchFailure() {
         errorCount++;
         comboCount = 0;

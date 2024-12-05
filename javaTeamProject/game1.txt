@@ -1,5 +1,6 @@
 test,225
+test,225
+test,220
 test,220
 test,195
 최인규,0
-test,225

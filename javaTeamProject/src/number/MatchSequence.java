@@ -14,7 +14,6 @@ public class MatchSequence {
     private int cardHeight = 128;
 
     private ArrayList<CardS> cardSet;
-    private JFrame frame = new JFrame("Match Sequence");
     private JPanel boardPanel = new JPanel();
     private JPanel infoPanel = new JPanel();
 
@@ -39,28 +38,22 @@ public class MatchSequence {
         cardBackIcon = new ImageIcon(cardBackImage.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
     }
 
-    public void run() {
-        // 프레임 설정
-        frame.setVisible(true);
-        frame.setLayout(new BorderLayout());
-        frame.setSize(size * cardWidth + 100, size * cardHeight + 200);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public JPanel createGamePanel() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         // 상단 정보 패널
         infoPanel.setLayout(new GridLayout(1, 2));
-        timerLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        timerLabel.setFont(new Font("Arial", Font.BOLD, 25));
         timerLabel.setHorizontalAlignment(JLabel.CENTER);
         timerLabel.setText("Time: " + remainingTime + "s");
 
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 25));
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setText("Errors: " + errorCount);
 
         infoPanel.add(timerLabel);
         infoPanel.add(errorLabel);
-        frame.add(infoPanel, BorderLayout.NORTH);
+        mainPanel.add(infoPanel, BorderLayout.NORTH);
 
         // 보드 패널
         boardPanel.setLayout(new GridLayout(size, size));
@@ -73,14 +66,12 @@ public class MatchSequence {
             boardPanel.add(tile);
             tile.addActionListener(e -> handleCardClick(card));
         }
-        frame.add(boardPanel, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
+        mainPanel.add(boardPanel, BorderLayout.CENTER);
 
-        // 초기 카드 공개 및 타이머 시작
         revealAllCardsTemporarily();
-        startGameTimer();
-        startHintTimer(); // 힌트 타이머 시작
+        startDelayedTimers();
+
+        return mainPanel;
     }
 
     private void setupCards() {
@@ -109,6 +100,17 @@ public class MatchSequence {
         }
     }
 
+    // 타이머 시작을 3초 지연
+    private void startDelayedTimers() {
+        // 3초 대기 후 게임 타이머와 힌트 타이머 시작
+        Timer delayTimer = new Timer(3000, e -> {
+            startGameTimer(); // 3초 뒤에 게임 타이머 시작
+            startHintTimer(); // 3초 뒤에 힌트 타이머 시작
+        });
+        delayTimer.setRepeats(false); // 한 번만 실행
+        delayTimer.start();
+    }
+
     private void startGameTimer() {
         gameTimer = new Timer(1000, e -> {
             remainingTime--;
@@ -117,16 +119,23 @@ public class MatchSequence {
             if (remainingTime <= 0) {
                 gameTimer.stop();
                 hintTimer.stop(); // 힌트 타이머도 정지
-                endGame("Time's up! You matched " + (nextCardNumber - 1) + " cards.");
+                if (gameEndListener != null) {
+                    gameEndListener.onGameEnd(nextCardNumber - 1, 0);
+                }
             }
         });
         gameTimer.start();
     }
 
     private void startHintTimer() {
-        hintTimer = new Timer(3000, e -> showRandomCards());
-        hintTimer.start();
+        Timer delayTimer = new Timer(3000, e -> { // 5초 대기 타이머
+            hintTimer = new Timer(3000, ev -> showRandomCards()); // 힌트 타이머
+            hintTimer.start();
+        });
+        delayTimer.setRepeats(false); // 5초 후 한 번만 실행
+        delayTimer.start();
     }
+
 
     private void showRandomCards() {
         ArrayList<CardS> availableCards = new ArrayList<>();
@@ -150,7 +159,7 @@ public class MatchSequence {
             firstCard.reveal();
             secondCard.reveal();
 
-            Timer hideTimer = new Timer(1000, ev -> {
+            Timer hideTimer = new Timer(1500, ev -> {
                 firstCard.hide();
                 secondCard.hide();
             });
@@ -167,26 +176,14 @@ public class MatchSequence {
             if (nextCardNumber > size * size) {
                 gameTimer.stop();
                 hintTimer.stop();
-                endGame("Congratulations! You matched all cards.");
+                if (gameEndListener != null) {
+                    gameEndListener.onGameEnd(nextCardNumber - 1, remainingTime);
+                }
             }
         } else {
-            gameTimer.stop();
-            hintTimer.stop();
-            endGame("Game Over! You clicked the wrong card.");
+            errorCount++;
+            errorLabel.setText("Errors: " + errorCount);
         }
-    }
-
-    private void endGame(String message) {
-        JOptionPane.showMessageDialog(frame, message, "Game Over", JOptionPane.INFORMATION_MESSAGE);
-
-        scoreManager.setMatchedCards(nextCardNumber - 1);
-        scoreManager.setRemainingTime(remainingTime);
-
-        if (gameEndListener != null) {
-            gameEndListener.onGameEnd(scoreManager.getMatchedCards(), scoreManager.getRemainingTime());
-        }
-
-        frame.dispose();
     }
 
     public void setGameEndListener(GameEndListener listener) {
