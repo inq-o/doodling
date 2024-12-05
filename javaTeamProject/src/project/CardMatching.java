@@ -8,8 +8,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import GameManager.*;
-import number.MatchSequence;
-import number.ScoreManagerS;
+import GameManager.MatchSequence;
 
 public class CardMatching extends JFrame {
     private final String GAME1_SCORE_FILE = "./game1.txt";
@@ -85,7 +84,7 @@ public class CardMatching extends JFrame {
         gbc.gridx = 2;
         buttonPanel.add(exitButton, gbc);
 
-        // 하단 네비게이션 버튼 추가
+        // 네비게이션 버튼 추가
         JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  // 좌측 하단에 배치하기 위해 FlowLayout 사용
         bottomButtonPanel.setOpaque(false);  // 투명하게 만들기
 
@@ -236,11 +235,11 @@ public class CardMatching extends JFrame {
         gbc.gridy = 2;
         centerButtonPanel.add(game3Button, gbc);
 
-        // HELP 버튼을 우측 상단에 배치
-        gbc.gridx = 1; // 우측 열로 설정
-        gbc.gridy = 0; // 첫 번째 행
-        gbc.anchor = GridBagConstraints.NORTHEAST; // 우측 상단에 배치
-        centerButtonPanel.add(helpButton, gbc);
+//        // HELP 버튼을 우측 상단에 배치
+//        gbc.gridx = 1; // 우측 열로 설정
+//        gbc.gridy = 0; // 첫 번째 행
+//        gbc.anchor = GridBagConstraints.NORTHEAST; // 우측 상단에 배치
+//        centerButtonPanel.add(helpButton, gbc);
 
         // 하단 버튼 패널
         JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // 좌측 정렬
@@ -275,17 +274,18 @@ public class CardMatching extends JFrame {
         backToPreviousButton.setBorder(BorderFactory.createEmptyBorder());
         backToPreviousButton.setContentAreaFilled(false);
 
-        // 하단 버튼 이벤트 추가
-        backToMainButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
+// 하단 버튼 이벤트 추가
+        backToMainButton.addActionListener(e -> cardLayout.show(mainPanel, "menu")); // 메인 화면으로 돌아가기
         backToGameSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
         backToRankSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
-        backToPreviousButton.addActionListener(e -> cardLayout.previous(mainPanel));
+        backToPreviousButton.addActionListener(e -> cardLayout.show(mainPanel, "menu")); // Back 버튼 클릭 시 메인 화면으로 이동
 
-        // 하단 버튼 패널에 추가
+// 하단 버튼 패널에 추가
         bottomButtonPanel.add(backToMainButton);
         bottomButtonPanel.add(backToGameSelectButton);
         bottomButtonPanel.add(backToRankSelectButton);
         bottomButtonPanel.add(backToPreviousButton);
+        bottomButtonPanel.add(helpButton);
 
         // 패널에 구성 추가
         gameSelectPanel.add(centerButtonPanel, BorderLayout.CENTER); // 중앙
@@ -300,12 +300,13 @@ public class CardMatching extends JFrame {
                 "game1: 같은 색깔 맞추기.\n" +
                 "game2: 이미지와 단어 맞추기.\n" +
                 "game3: 숫자 순서대로 맞추기.\n\n" +
-                "점수 및 아이템 설명:\n"+
-                "카드를 매칭하면 30점을 얻습니다.\n"+
+                "점수 및 아이템 설명:\n\n"+
+                "카드를 매칭하면 20점을 얻습니다.\n"+
+                "카드를 맞추지 못 할 때마다, 5점씩 감점됩니다.\n"+
                 "제한 시간: 60초\n"+
-                "콤보: 연속해서 카드 매칭 시, 더 많은 점수를 얻을 수 있습니다.\n"+
-                "눈 모양 아이콘: 모든 카드를 뒤집을 수 있는 아이템으로 1회 사용 가능합니다\n"+
-                "카드를 맞추지 못 할 때마다, 5점씩 감점합니다\n"+
+                "콤보: 연속해서 카드 매칭 시, 더 많은 점수를 얻을 수 있습니다.\n\n"+
+                "눈 모양 아이콘: 모든 카드를 뒤집을 수 있는 아이템으로 1회 사용 가능합니다.\n"+
+                "시계 모양 아이콘: 남은 시간이 30초 증가합니다.\n\n"+
                 "모든 카드를 매칭 한 후, 남은 시간은 점수로 들어갑니다.\n"+
                 "최대한 틀리지 않고, 연속해서 빠르게 맞출수록 높은 점수를 얻을 수 있습니다.";
         JOptionPane.showMessageDialog(mainPanel, helpMessage, "게임 설명", JOptionPane.INFORMATION_MESSAGE);
@@ -376,8 +377,8 @@ public class CardMatching extends JFrame {
         backToGameSelectButton.setBorder(BorderFactory.createEmptyBorder());
         backToGameSelectButton.setContentAreaFilled(false);
 
-        ImageIcon rank2Icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/rankNav.png")));
-        backToRankSelectButton.setIcon(new ImageIcon(rank2Icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
+        ImageIcon rankIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/rankNav.png")));
+        backToRankSelectButton.setIcon(new ImageIcon(rankIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
         backToRankSelectButton.setPreferredSize(new Dimension(50, 50));
         backToRankSelectButton.setBorder(BorderFactory.createEmptyBorder());
         backToRankSelectButton.setContentAreaFilled(false);
@@ -388,13 +389,13 @@ public class CardMatching extends JFrame {
         backToPreviousButton.setBorder(BorderFactory.createEmptyBorder());
         backToPreviousButton.setContentAreaFilled(false);
 
-        // 하단 버튼 이벤트 추가
-        backToMainButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
+// 하단 버튼 이벤트 추가
+        backToMainButton.addActionListener(e -> cardLayout.show(mainPanel, "menu")); // 메인 화면으로 돌아가기
         backToGameSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
         backToRankSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
-        backToPreviousButton.addActionListener(e -> cardLayout.previous(mainPanel));
+        backToPreviousButton.addActionListener(e -> cardLayout.show(mainPanel, "menu")); // Back 버튼 클릭 시 메인 화면으로 이동
 
-        // 하단 버튼 패널에 추가
+// 하단 버튼 패널에 추가
         bottomButtonPanel.add(backToMainButton);
         bottomButtonPanel.add(backToGameSelectButton);
         bottomButtonPanel.add(backToRankSelectButton);
@@ -465,9 +466,9 @@ public class CardMatching extends JFrame {
     private void updateRankArea(JEditorPane rankTextPane, ArrayList<PlayerScore> scores) {
         scores.sort(Comparator.comparingInt(PlayerScore::getScore).reversed());
 
-        StringBuilder rankHtml = new StringBuilder("<html><body style='text-align: center; color: black; font-size: 24;'>"); // 글자 크기 키움
+        StringBuilder rankHtml = new StringBuilder("<html><body style='text-align: center; color: black; font-size: 24;'>");
         rankHtml.append("<h2 style='font-size: 36px;'></h2>");
-        rankHtml.append("<table style='width: 100%; border-collapse: collapse; font-size: 24px;'>"); // 테이블의 글자 크기 키움
+        rankHtml.append("<table style='width: 100%; border-collapse: collapse; font-size: 24px; margin-top: 20px;'>"); // 테이블의 위쪽 여백 추가
         rankHtml.append("<tr style='font-weight: bold; text-align: center;'><td>순위</td><td>이름</td><td>점수</td></tr>");
 
         for (int i = 0; i < scores.size(); i++) {
@@ -507,7 +508,7 @@ public class CardMatching extends JFrame {
     }
 
     private void launchNumberGame() {
-        ScoreManagerS scoreManager = new ScoreManagerS();
+        ScoreManager scoreManager = new ScoreManager();
         MatchSequence matchSequence = new MatchSequence(scoreManager);
 
         JPanel game3Panel = matchSequence.createGamePanel();

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MatchCards {
     private int size = 4;
@@ -64,7 +65,7 @@ public class MatchCards {
     }
 
     private void setupStatusPanel() {
-        Font statusFont = new Font("Arial", Font.BOLD, 25);
+        Font statusFont = new Font("Arial", Font.BOLD, 23);
 
         errorLabel.setFont(statusFont);
         errorLabel.setText("Errors: " + errorCount);
@@ -118,7 +119,7 @@ public class MatchCards {
                 MatchCards.class.getResource("/resource/buttons/qm.png"))).getImage();
         cardBackImageIcon = new ImageIcon(cardBackImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
 
-        if (gameName.equals("similar")) {
+        if (gameName.equals("character")) {
             for (int i = 1; i <= 8; i++) {
                 Image colorImg = new ImageIcon(Objects.requireNonNull(
                         MatchCards.class.getResource("/resource/"+gameName + "/card" + i + ".png"))).getImage();
@@ -207,17 +208,17 @@ public class MatchCards {
     private void processMatchSuccess() {
         markAsMatched(card1Selected, card2Selected);
 
-        if (comboCount > 0) {
-            comboCount++;
+        if (comboCount == 0) {
+            comboCount = 1;  // 처음 성공 시 콤보 시작
         } else {
-            comboCount = 1;
+            comboCount++;  // 콤보 증가
         }
 
         scoreManager.increaseScore(comboCount - 1);
         updateScore();
 
         if (comboCount > 1) {
-            triggerComboAnimation();
+            triggerComboAnimation(); // 콤보 애니메이션은 단순히 시각적 효과
         }
 
         if (scoreManager.getMatchSuccessCount() == 8) {
@@ -226,43 +227,71 @@ public class MatchCards {
 
         resetCardSelection();
     }
+
     private void triggerComboAnimation() {
-        Timer animationTimer = new Timer(50, null); // Executes every 50ms
-        int originalFontSize = 25;
-        int[] fontSize = {originalFontSize};
-        int maxFontSize = 40; // Maximum font size
-        AtomicBoolean increasing = new AtomicBoolean(true); // To check whether it's increasing or decreasing
-        int shadowOffset = 2; // Shadow offset for text
+        Timer animationTimer = new Timer(100, null);
+        int originalFontSize = 23; // 기본 폰트 크기
+        AtomicInteger fontSize = new AtomicInteger(originalFontSize); // AtomicInteger로 변경
+        int maxFontSize = 25; // 최대 폰트 크기
+        AtomicBoolean increasing = new AtomicBoolean(true); // 폰트 크기 증가/감소 여부 체크
+        final Color startColor = comboCount == 0 ? Color.BLACK : new Color(255, 0, 0); // 콤보가 0이면 검은색
+        final Color endColor = comboCount == 0 ? Color.BLACK : new Color(255, 255, 0); // 콤보가 0이면 검은색
+
+        // 애니메이션 종료 후 복원할 원본 텍스트
+        String originalText = "Combo " + (comboCount - 1); // 콤보 텍스트는 항상 이 형태로 시작
+        comboLabel.setText(originalText); // 텍스트 설정
+
+        // 반복 횟수 (2번 반복)
+        AtomicInteger cycleCount = new AtomicInteger(0);
 
         animationTimer.addActionListener(e -> {
-            // Font size adjustment
+            // 콤보가 0일 경우 애니메이션 바로 종료
+            if (comboCount == 0) {
+                comboLabel.setText("Combo " + (comboCount - 1)); // 콤보 0일 경우 텍스트 바로 설정
+                comboLabel.setForeground(Color.BLACK); // 텍스트 색상 검은색으로 설정
+                animationTimer.stop(); // 애니메이션 종료
+                return; // 애니메이션 종료
+            }
+
+            // 폰트 크기 증가/감소 처리
             if (increasing.get()) {
-                fontSize[0] += 2; // Increase size
+                fontSize.addAndGet(1); // 폰트 크기 증가
             } else {
-                fontSize[0] -= 2; // Decrease size
+                fontSize.addAndGet(-1); // 폰트 크기 감소
             }
 
-            // Apply font size and create text shadow effect
-            comboLabel.setFont(new Font("Arial", Font.BOLD, fontSize[0]));
-            comboLabel.setForeground(new Color(255, 0, 0)); // Red color for emphasis
-            comboLabel.setText("<html><span style='font-size:" + fontSize[0] + "px; text-shadow: "
-                    + shadowOffset + "px " + shadowOffset + "px 5px rgba(0, 0, 0, 0.5);'>"
-                    + comboLabel.getText() + "</span></html>");
+            // 콤보 텍스트에 애니메이션 효과 적용 (콤보 횟수는 고정)
+            comboLabel.setText("<html><span style='font-size:" + fontSize.get() + "px; text-shadow: "
+                    + "2px 2px 5px rgba(0, 0, 0, 0.5);'>"
+                    + "Combo " + (comboCount - 1) + "</span></html>");
+            comboLabel.setFont(new Font("Arial", Font.BOLD, fontSize.get()));
 
-            // Handle the increase/decrease of font size
-            if (fontSize[0] >= maxFontSize) {
-                increasing.set(false); // Start decreasing when max font size is reached
-            } else if (fontSize[0] <= originalFontSize) {
-                animationTimer.stop(); // Stop animation when back to original size
-                comboLabel.setForeground(Color.BLACK); // Restore the original color
-                comboLabel.setText(comboLabel.getText().replace("<html><span style='font-size:"
-                        + fontSize[0] + "px; text-shadow: " + shadowOffset + "px " + shadowOffset + "px 5px rgba(0, 0, 0, 0.5);'>", ""));
+            // 색상 변화 처리 (폰트 크기 변화에 맞춰 색상 변화)
+            int red = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * (fontSize.get() - originalFontSize) / (float) maxFontSize);
+            int green = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * (fontSize.get() - originalFontSize) / (float) maxFontSize);
+            int blue = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * (fontSize.get() - originalFontSize) / (float) maxFontSize);
+            comboLabel.setForeground(new Color(red, green, blue));
+
+            // 폰트 크기 최대값 도달 시 크기 감소로 전환
+            if (fontSize.get() >= maxFontSize) {
+                increasing.set(false); // 폰트 크기 감소
+            } else if (fontSize.get() <= originalFontSize) {
+                increasing.set(true); // 폰트 크기 증가
             }
 
-            comboLabel.repaint(); // Repaint label to update visuals
+            // 1초 동안 폰트 크기 변화 1번 사이클이 끝난 후
+            if (fontSize.get() <= originalFontSize && cycleCount.get() < 2) {
+                cycleCount.incrementAndGet(); // 사이클 1번 진행
+            }
+
+            // 2번 사이클이 끝난 후 애니메이션 종료
+            if (cycleCount.get() >= 2 && fontSize.get() == originalFontSize) {
+                comboLabel.setText("Combo " + (comboCount - 1)); // 콤보 횟수는 계속 고정
+                animationTimer.stop(); // 애니메이션 종료
+            }
         });
 
-        animationTimer.start(); // Start animation
+        animationTimer.start(); // 애니메이션 시작
     }
 
     private void processMatchFailure() {
@@ -271,6 +300,10 @@ public class MatchCards {
         comboCount = 0; // 콤보 초기화
         updateScore(); // 점수 UI 업데이트
         hideCardTimer.start(); // 카드를 숨기는 타이머 시작
+
+        // 콤보 애니메이션을 종료하도록 설정
+        comboLabel.setText("Combo: 0");  // 콤보가 0일 때 텍스트 갱신
+        comboLabel.setForeground(Color.BLACK);  // 콤보 텍스트 색상 검정으로 설정
     }
 
     private void markAsMatched(JButton first, JButton second) {
@@ -324,14 +357,19 @@ public class MatchCards {
     }
 
     private void startGameTimer() {
-        gameTimer = new Timer(1000, e -> {
-            remainingTime--;
-            timerLabel.setText("Time: " + remainingTime + "s");
-            if (remainingTime <= 0) {
-                endGame();
-            }
+        Timer startDelayTimer = new Timer(2000, e -> {
+
+            gameTimer = new Timer(1000, event -> {
+                remainingTime--;
+                timerLabel.setText("Time: " + remainingTime + "s");
+                if (remainingTime <= 0) {
+                    endGame();
+                }
+            });
+            gameTimer.start();
         });
-        gameTimer.start();
+        startDelayTimer.setRepeats(false);
+        startDelayTimer.start();
     }
 
     private void updateScore() {
@@ -345,7 +383,7 @@ public class MatchCards {
 
     private void endGame() {
         gameTimer.stop();
-        // 게임 종료 시, 남은 시간을 점수에 추가
+
         int finalScore = scoreManager.getFinalScore() + remainingTime;
         JOptionPane.showMessageDialog(null, "게임 종료!\n최종 점수 : " + finalScore);
 
