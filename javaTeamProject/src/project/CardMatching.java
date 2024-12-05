@@ -43,12 +43,18 @@ public class CardMatching extends JFrame {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
+        // 메뉴 패널 설정
         ImageIcon icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/backgrounds/title.png")));
         ImagePanel menuPanel = new ImagePanel(icon.getImage());
 
-        menuPanel.setLayout(new GridBagLayout());
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        menuPanel.setLayout(new BorderLayout());  // 전체 레이아웃을 BorderLayout으로 설정
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
         buttonPanel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridy = 0; // 같은 행에 배치
+        gbc.anchor = GridBagConstraints.CENTER; // 중앙 정렬
 
         JButton gameButton = new JButton();
         JButton rankButton = new JButton();
@@ -71,9 +77,13 @@ public class CardMatching extends JFrame {
         rankButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
         exitButton.addActionListener(e -> System.exit(0));
 
-        buttonPanel.add(gameButton);
-        buttonPanel.add(rankButton);
-        buttonPanel.add(exitButton);
+        // 버튼들을 GridBagLayout으로 중앙 정렬
+        gbc.gridx = 0;
+        buttonPanel.add(gameButton, gbc);
+        gbc.gridx = 1;
+        buttonPanel.add(rankButton, gbc);
+        gbc.gridx = 2;
+        buttonPanel.add(exitButton, gbc);
 
         // 하단 네비게이션 버튼 추가
         JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  // 좌측 하단에 배치하기 위해 FlowLayout 사용
@@ -96,20 +106,11 @@ public class CardMatching extends JFrame {
         bottomButtonPanel.add(backToRankSelectButton);
         bottomButtonPanel.add(backToPreviousButton);
 
-        // GridBagConstraints 사용하여 하단 버튼 패널 추가
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        menuPanel.add(buttonPanel, gbc);
+        // 메뉴 패널에 버튼들 추가
+        menuPanel.add(buttonPanel, BorderLayout.CENTER);  // 버튼을 가운데 배치
+        menuPanel.add(bottomButtonPanel, BorderLayout.SOUTH);  // 하단 버튼을 좌측 하단에 배치
 
-        // 하단 버튼을 GridBagLayout에 맞게 추가 (GridBagConstraints 사용)
-        gbc.gridy = 1;  // GridBagLayout에서 아래쪽에 배치
-        gbc.gridwidth = GridBagConstraints.REMAINDER;  // 하단 버튼이 화면 전체에 걸치도록 설정
-        menuPanel.add(bottomButtonPanel, gbc);
-
-        // 각 패널 설정
+        // 각 화면 설정
         JPanel gameSelectPanel = createGameSelectPanel();
         JPanel rankSelectPanel = createRankSelectPanel();
 
@@ -221,7 +222,6 @@ public class CardMatching extends JFrame {
         backButton.setPreferredSize(new Dimension(200, 40));
 
         game1Button.addActionListener(e -> launchGame("color"));
-
         game2Button.addActionListener(e -> launchGame("similar"));
         game3Button.addActionListener(e -> launchNumberGame()); // 게임3 실행 로직 연결
         backButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
