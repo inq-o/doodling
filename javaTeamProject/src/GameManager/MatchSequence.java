@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Random;
 
 public class MatchSequence {
@@ -27,7 +28,7 @@ public class MatchSequence {
     private JLabel errorLabel = new JLabel();
     private JLabel scoreLabel = new JLabel(); // 점수 레이블 추가
     private JLabel comboLabel = new JLabel(); // 콤보 레이블 추가
-    private JButton itemButton = new JButton("Add 30 Seconds"); // 아이템 버튼 추가
+    private JButton itemButton = new JButton("TIME +"); // 아이템 버튼 추가
     private Timer gameTimer; // javax.swing.Timer
     private Timer hintTimer; // javax.swing.Timer
     private ImageIcon cardBackIcon;
@@ -69,12 +70,22 @@ public class MatchSequence {
         itemButton.setBackground(Color.CYAN);
         itemButton.setFocusPainted(false);
 
+        // 아이템 버튼 설정
+        itemButton.setFont(new Font("Arial", Font.BOLD, 15)); // 아이템 버튼 설정
+        itemButton.setBackground(Color.CYAN);
+        itemButton.setFocusPainted(false);
+
+        // 새로운 아이콘으로 이미지 설정
+        ImageIcon timeItemIcon = new ImageIcon(Objects.requireNonNull(MatchSequence.class.getResource("/resource/buttons/timeItem.png")));
+        itemButton.setIcon(new ImageIcon(timeItemIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
+
         // 아이템 버튼 클릭 시 남은 시간을 30초 늘리는 기능 추가
         itemButton.addActionListener(e -> {
             remainingTime += 30; // 남은 시간 30초 증가
             timerLabel.setText("Time: " + remainingTime + "s");
             itemButton.setEnabled(false); // 버튼 비활성화
         });
+
 
         // 각 패널에 추가
         infoPanel.add(scoreLabel); // scoreLabel 추가

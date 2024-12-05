@@ -147,8 +147,8 @@ public class MatchCards {
                 Image cardImg = new ImageIcon(Objects.requireNonNull(
                         MatchCards.class.getResource("/resource/"+gameName + "/card" + i + ".png"))).getImage();
                 ImageIcon cardIcon = new ImageIcon(cardImg.getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH));
-                ImageIcon itemIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/ShowItem.png")));
-                Image scaledIconImage = itemIcon.getImage().getScaledInstance(150, 50, Image.SCALE_SMOOTH);
+                ImageIcon itemIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/showItem.png")));
+                Image scaledIconImage = itemIcon.getImage().getScaledInstance(100, 50, Image.SCALE_SMOOTH);
 
                 ImageIcon scaledItemIcon = new ImageIcon(scaledIconImage);
                 itemButton.setBorder(BorderFactory.createEmptyBorder());  // 테두리 제거
@@ -232,7 +232,7 @@ public class MatchCards {
         Timer animationTimer = new Timer(100, null);
         int originalFontSize = 23; // 기본 폰트 크기
         AtomicInteger fontSize = new AtomicInteger(originalFontSize); // AtomicInteger로 변경
-        int maxFontSize = 25; // 최대 폰트 크기
+        int maxFontSize = 24; // 최대 폰트 크기
         AtomicBoolean increasing = new AtomicBoolean(true); // 폰트 크기 증가/감소 여부 체크
         final Color startColor = comboCount == 0 ? Color.BLACK : new Color(255, 0, 0); // 콤보가 0이면 검은색
         final Color endColor = comboCount == 0 ? Color.BLACK : new Color(255, 255, 0); // 콤보가 0이면 검은색
