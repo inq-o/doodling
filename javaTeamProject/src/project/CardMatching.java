@@ -68,15 +68,35 @@ public class CardMatching extends JFrame {
         exitButton.setPreferredSize(new Dimension(150, 100));
 
         gameButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
-
         rankButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
-
         exitButton.addActionListener(e -> System.exit(0));
 
         buttonPanel.add(gameButton);
         buttonPanel.add(rankButton);
         buttonPanel.add(exitButton);
 
+        // 하단 네비게이션 버튼 추가
+        JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  // 좌측 하단에 배치하기 위해 FlowLayout 사용
+        bottomButtonPanel.setOpaque(false);  // 투명하게 만들기
+
+        JButton backToMainButton = new JButton("메인 화면");
+        backToMainButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
+
+        JButton backToGameSelectButton = new JButton("게임 선택 화면");
+        backToGameSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
+
+        JButton backToRankSelectButton = new JButton("랭킹 선택 화면");
+        backToRankSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
+
+        JButton backToPreviousButton = new JButton("이전 화면");
+        backToPreviousButton.addActionListener(e -> cardLayout.previous(mainPanel));
+
+        bottomButtonPanel.add(backToMainButton);
+        bottomButtonPanel.add(backToGameSelectButton);
+        bottomButtonPanel.add(backToRankSelectButton);
+        bottomButtonPanel.add(backToPreviousButton);
+
+        // GridBagConstraints 사용하여 하단 버튼 패널 추가
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.gridx = 0;
@@ -84,6 +104,12 @@ public class CardMatching extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         menuPanel.add(buttonPanel, gbc);
 
+        // 하단 버튼을 GridBagLayout에 맞게 추가 (GridBagConstraints 사용)
+        gbc.gridy = 1;  // GridBagLayout에서 아래쪽에 배치
+        gbc.gridwidth = GridBagConstraints.REMAINDER;  // 하단 버튼이 화면 전체에 걸치도록 설정
+        menuPanel.add(bottomButtonPanel, gbc);
+
+        // 각 패널 설정
         JPanel gameSelectPanel = createGameSelectPanel();
         JPanel rankSelectPanel = createRankSelectPanel();
 
@@ -101,11 +127,42 @@ public class CardMatching extends JFrame {
         add(mainPanel);
         cardLayout.show(mainPanel, "menu");
 
+        // 게임 종료 시 점수 저장
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             saveScoresToFile(GAME1_SCORE_FILE, game1Scores);
             saveScoresToFile(GAME2_SCORE_FILE, game2Scores);
             saveScoresToFile(GAME3_SCORE_FILE, game3Scores);
         }));
+    }
+
+    // 기존에 있는 기능들은 그대로 두고, 하단 버튼만 추가
+    private void addBottomNavigationButtons(JPanel menuPanel, JPanel gameSelectPanel, JPanel rankSelectPanel) {
+        JPanel bottomButtonPanel = new JPanel(new GridLayout(1, 4)); // 버튼을 좌측 하단에 나열
+        bottomButtonPanel.setOpaque(false);  // 투명하게 만들기
+
+        // 버튼 추가: 메인 화면, 게임 선택 화면, 랭킹 선택 화면, 이전 화면
+        JButton backToMainButton = new JButton("메인 화면");
+        backToMainButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
+
+        JButton backToGameSelectButton = new JButton("게임 선택 화면");
+        backToGameSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
+
+        JButton backToRankSelectButton = new JButton("랭킹 선택 화면");
+        backToRankSelectButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
+
+        JButton backToPreviousButton = new JButton("이전 화면");
+        backToPreviousButton.addActionListener(e -> cardLayout.previous(mainPanel));
+
+        // 하단 버튼들을 배치
+        bottomButtonPanel.add(backToMainButton);
+        bottomButtonPanel.add(backToGameSelectButton);
+        bottomButtonPanel.add(backToRankSelectButton);
+        bottomButtonPanel.add(backToPreviousButton);
+
+        // 기존 메뉴나 각 화면 패널에 하단 버튼 패널 추가
+        menuPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+        gameSelectPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+        rankSelectPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
     }
 
     private void loadScoresFromFile(String fileName, ArrayList<PlayerScore> scores) {
@@ -146,7 +203,6 @@ public class CardMatching extends JFrame {
         JButton game2Button = new JButton();
         JButton game3Button = new JButton(); // 게임3 버튼 추가
         JButton backButton = new JButton();
-        //JButton rankButton = new JButton();
 
         ImageIcon game1Icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/selectGame1.png")));
         game1Button.setIcon(new ImageIcon(game1Icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
@@ -164,10 +220,6 @@ public class CardMatching extends JFrame {
         backButton.setIcon(new ImageIcon(menuButtonIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         backButton.setPreferredSize(new Dimension(200, 40));
 
-//        ImageIcon rankIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/rank.png"))); ///////////
-//        rankButton.setIcon(new ImageIcon(rankIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
-//        rankButton.setPreferredSize(new Dimension(200, 50));
-
         game1Button.addActionListener(e -> launchGame("color"));
 
         game2Button.addActionListener(e -> launchGame("similar"));
@@ -182,14 +234,11 @@ public class CardMatching extends JFrame {
         gameSelectPanel.add(game3Button, gbc); // 게임3 버튼 추가
         gbc.gridy = 3;
         gameSelectPanel.add(backButton, gbc);
-//        gbc.gridy =4; ////////////////
-//        gameSelectPanel.add(rankButton, gbc);
-
-        backButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
 
         return gameSelectPanel;
     }
 
+    // 게임 실행 후 돌아가기 버튼 로직은 그대로 유지
     private JPanel createRankSelectPanel() {
         ImageIcon icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/backgrounds/rankSelect.png")));
         ImagePanel rankSelectPanel = new ImagePanel(icon.getImage());
@@ -201,7 +250,6 @@ public class CardMatching extends JFrame {
         JButton game1RankButton = new JButton();
         JButton game2RankButton = new JButton();
         JButton backButton = new JButton();
-        //JButton gameButton = new JButton(); ///////////////////////////
 
         ImageIcon game1RankIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/game1.png")));
         game1RankButton.setIcon(new ImageIcon(game1RankIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
@@ -215,14 +263,9 @@ public class CardMatching extends JFrame {
         backButton.setIcon(new ImageIcon(menuButtonIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
         backButton.setPreferredSize(new Dimension(200, 50));
 
-//        ImageIcon startIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/start.png")));///////////
-//        gameButton.setIcon(new ImageIcon(startIcon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH)));
-//        gameButton.setPreferredSize(new Dimension(200, 50));
-
         game1RankButton.addActionListener(e -> cardLayout.show(mainPanel, "game1Rank"));
         game2RankButton.addActionListener(e -> cardLayout.show(mainPanel, "game2Rank"));
         backButton.addActionListener(e -> cardLayout.show(mainPanel, "menu"));
-//        gameButton.addActionListener(e -> cardLayout.show(mainPanel, "gameSelect"));
 
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -235,9 +278,6 @@ public class CardMatching extends JFrame {
         gbc.gridy = 2;
         rankSelectPanel.add(backButton, gbc);
 
-//        gbc.gridy= 3;
-//        rankSelectPanel.add(gameButton,gbc);
-
         return rankSelectPanel;
     }
 
@@ -245,50 +285,39 @@ public class CardMatching extends JFrame {
         JPanel rankPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
-                // 배경 이미지 설정
-                ImageIcon backgroundImage = new ImageIcon(
-                        Objects.requireNonNull(getClass().getResource("/resource/backgrounds/title.png")));
+                ImageIcon backgroundImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/backgrounds/title.png")));
                 Image img = backgroundImage.getImage();
                 g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
                 super.paintComponent(g);
             }
         };
 
-        // 제목 라벨 설정
         JLabel titleLabel = new JLabel("랭킹");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setForeground(Color.BLACK); // 글씨 검은색
+        titleLabel.setForeground(Color.BLACK);
         rankPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // HTML 형식의 랭킹 데이터 표시
         JEditorPane rankTextPane = new JEditorPane() {
             @Override
             protected void paintComponent(Graphics g) {
-                // JEditorPane의 배경 투명화
                 super.paintComponent(g);
-                setOpaque(false); // 오버라이딩해서 항상 투명화
+                setOpaque(false);
             }
         };
         rankTextPane.setContentType("text/html");
         rankTextPane.setEditable(false);
-        rankTextPane.setOpaque(false); // 배경 투명화
+        rankTextPane.setOpaque(false);
 
-        // JScrollPane 추가
         JScrollPane scrollPane = new JScrollPane(rankTextPane);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         rankPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // 뒤로가기 버튼 설정
-        JButton backButton = new JButton();
-        ImageIcon startIcon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/buttons/rank.png")));
-        backButton.setIcon(new ImageIcon(startIcon.getImage().getScaledInstance(150, 100, Image.SCALE_SMOOTH))); // 다른 버튼과 크기 동일화
-        backButton.setPreferredSize(new Dimension(150, 100));
+        JButton backButton = new JButton("뒤로 가기");
         backButton.addActionListener(e -> cardLayout.show(mainPanel, "rankSelect"));
         rankPanel.add(backButton, BorderLayout.SOUTH);
 
-        // 컴포넌트 표시 시 데이터 업데이트
         rankPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -300,10 +329,8 @@ public class CardMatching extends JFrame {
     }
 
     private void updateRankArea(JEditorPane rankTextPane, ArrayList<PlayerScore> scores) {
-        // 점수 정렬 (내림차순)
         scores.sort(Comparator.comparingInt(PlayerScore::getScore).reversed());
 
-        // HTML로 데이터 준비 (모든 텍스트를 가운데 정렬)
         StringBuilder rankHtml = new StringBuilder("<html><body style='text-align: center; color: black;'>");
         rankHtml.append("<h2>랭킹</h2>");
         rankHtml.append("<table style='width: 100%; border-collapse: collapse;'>");
@@ -320,13 +347,12 @@ public class CardMatching extends JFrame {
 
         rankHtml.append("</table></body></html>");
 
-        // HTML 텍스트 설정
         rankTextPane.setText(rankHtml.toString());
-        rankTextPane.setCaretPosition(0); // 스크롤 맨 위로 설정
+        rankTextPane.setCaretPosition(0);
     }
 
     private void launchGame(String gameName) {
-        System.out.println("Launching game mode: " + gameName); // 디버깅 로그 추가
+        System.out.println("Launching game mode: " + gameName);
         ScoreManager scoreManager = new ScoreManager();
         MatchCards matchCards = new MatchCards(scoreManager);
 
@@ -334,43 +360,37 @@ public class CardMatching extends JFrame {
         mainPanel.add(gamePanel, "gamePanel");
 
         matchCards.setGameEndListener(finalScore -> {
-            System.out.println("Game mode: " + gameName + " ended with score: " + finalScore); // 디버깅 로그 추가
+            System.out.println("Game mode: " + gameName + " ended with score: " + finalScore);
             if (gameName.equals("color")) {
                 game1Scores.add(new PlayerScore(playerName, finalScore));
             } else if (gameName.equals("similar")) {
                 game2Scores.add(new PlayerScore(playerName, finalScore));
             }
-            //JOptionPane.showMessageDialog(CardMatching.this, "점수가 저장되었습니다!");
             cardLayout.show(mainPanel, "menu");
         });
 
         cardLayout.show(mainPanel, "gamePanel");
     }
 
-
-
     private void launchNumberGame() {
         ScoreManagerS scoreManager = new ScoreManagerS();
         MatchSequence matchSequence = new MatchSequence(scoreManager);
 
-        // 게임3 패널 생성
         JPanel game3Panel = matchSequence.createGamePanel();
         mainPanel.add(game3Panel, "game3Panel");
 
-        // 게임 종료 이벤트 처리
         matchSequence.setGameEndListener((matchedCards, remainingTime) -> {
-            game3Scores.add(new PlayerScore(playerName, matchedCards * 10)); // 점수 계산 후 저장
+            game3Scores.add(new PlayerScore(playerName, matchedCards * 10));
             JOptionPane.showMessageDialog(this,
                     "게임3이 종료되었습니다!\n점수: " + (matchedCards * 10) + " (남은 시간: " + remainingTime + "초)");
-            cardLayout.show(mainPanel, "menu"); // 메뉴로 돌아가기
+            cardLayout.show(mainPanel, "menu");
         });
 
-        // 패널 전환
         cardLayout.show(mainPanel, "game3Panel");
     }
 
     private JPanel createGame3RankPanel() {
-        return createRankPanel(new ArrayList<>(game3Scores)); // 게임3 랭킹 화면 생성
+        return createRankPanel(new ArrayList<>(game3Scores));
     }
 
     public static void main(String[] args) {
