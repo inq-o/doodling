@@ -238,7 +238,6 @@ public class CardMatching extends JFrame {
         return gameSelectPanel;
     }
 
-    // 게임 실행 후 돌아가기 버튼 로직은 그대로 유지
     private JPanel createRankSelectPanel() {
         ImageIcon icon = new ImageIcon(Objects.requireNonNull(CardMatching.class.getResource("/resource/backgrounds/rankSelect.png")));
         ImagePanel rankSelectPanel = new ImagePanel(icon.getImage());
