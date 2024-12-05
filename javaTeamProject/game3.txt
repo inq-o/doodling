@@ -1,4 +1,2 @@
 test,30
-test,0
-Unknown,160
 Unknown,160

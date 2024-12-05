@@ -123,7 +123,6 @@ public class CardMatching extends JFrame {
         bottomButtonPanel.add(backToMainButton);
         bottomButtonPanel.add(backToGameSelectButton);
         bottomButtonPanel.add(backToRankSelectButton);
-        bottomButtonPanel.add(backToPreviousButton);
 
         // 메뉴 패널에 버튼들 추가
         menuPanel.add(buttonPanel, BorderLayout.CENTER);  // 버튼을 가운데 배치
